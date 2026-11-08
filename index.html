@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>À l’oreille: French numbers by ear</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E4E9F0; --surface:#F6F8FB; --ink:#14213D; --muted:#56627A; --line:#C6CFDC;
+  --plate:#1D3D8F; --frame:#2F7A5B; --ok:#2F7A5B; --bad:#C2362B;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1524; --surface:#16213A; --ink:#E7ECF4; --muted:#9AA6BD; --line:#2A3858;
+    --plate:#2549A8; --frame:#3C9A72; --ok:#4FBF8B; --bad:#FF6B5E; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1524; --surface:#16213A; --ink:#E7ECF4; --muted:#9AA6BD; --line:#2A3858;
+  --plate:#2549A8; --frame:#3C9A72; --ok:#4FBF8B; --bad:#FF6B5E; color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.5 Barlow,"Segoe UI",system-ui,sans-serif}
+.wrap{max-width:560px;margin:0 auto;padding:28px 20px 56px}
+h1,.cond{font-family:"Barlow Condensed","Arial Narrow",system-ui,sans-serif}
+h1{font-weight:700;font-size:2.8rem;line-height:1;margin:0 0 6px;letter-spacing:-.01em}
+.lede{color:var(--muted);margin:0 0 28px;max-width:46ch}
+fieldset{border:0;padding:0;margin:0 0 22px;min-width:0}
+legend{font-weight:600;padding:0;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip span{display:block;padding:7px 14px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);cursor:pointer;user-select:none}
+.chip input:checked+span{background:var(--plate);border-color:var(--plate);color:#fff}
+.chip input:focus-visible+span{outline:3px solid var(--frame);outline-offset:2px}
+.hint{color:var(--muted);margin:10px 0 0;min-height:1.5em}
+select{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);max-width:100%}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{font:600 1rem Barlow,system-ui,sans-serif;padding:11px 18px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--plate);border-color:var(--plate);color:#fff}
+.btn.big{font-size:1.15rem;padding:14px 28px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.icon-btn{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.icon-btn:focus-visible{outline:3px solid var(--frame);outline-offset:2px}
+.btn:focus-visible,select:focus-visible{outline:3px solid var(--frame);outline-offset:2px}
+.note{color:var(--muted);font-size:.95rem}
+.warn{background:var(--surface);border-left:4px solid var(--bad);padding:10px 14px;border-radius:6px;margin:0 0 20px}
+.warn.speechMsg{margin:10px 0 0}
+
+/* play */
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.top .cond{font-size:1.25rem;font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums}
+.top .score{color:var(--ink);font-weight:700}
+.top .lead{display:flex;align-items:center;gap:12px}
+.top .icon-btn{width:40px;height:40px}
+.top{gap:8px 12px;flex-wrap:wrap}
+.btn.small{padding:7px 12px;font-size:.95rem}
+.track{display:flex;gap:4px;margin-bottom:22px}
+.seg{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.seg.cur{background:var(--plate)}
+.seg.ok{background:var(--ok)}
+.seg.bad{background:var(--bad)}
+.plaque{
+  margin:0 auto 22px;background:var(--plate);color:#fff;
+  border:8px solid var(--frame);border-radius:20px;
+  box-shadow:inset 0 0 0 4px var(--plate),inset 0 0 0 6px rgba(255,255,255,.9);
+  min-height:156px;display:grid;place-items:center;padding:20px 22px;text-align:center;
+  transition:border-color .2s;
+}
+.plaque.ok{border-color:var(--ok)}
+.plaque.bad{border-color:var(--bad)}
+.num{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;font-size:clamp(2.6rem,12vw,4.4rem);line-height:1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.plaque.listening .num{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.plaque.listening .num{animation:none}}
+.answer{display:flex;gap:8px}
+.answer input{flex:1;min-width:0;font:600 1.7rem "Barlow Condensed",sans-serif;padding:8px 14px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-variant-numeric:tabular-nums}
+#mic.on,#micTest.on{border-color:var(--frame);background:var(--frame);color:#fff}
+.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.choice{font:700 1.6rem "Barlow Condensed","Arial Narrow",sans-serif;font-variant-numeric:tabular-nums;padding:14px 10px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;overflow-wrap:anywhere}
+.choice:focus-visible{outline:3px solid var(--frame);outline-offset:2px}
+.choice.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.choice.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.choice:disabled{cursor:default}
+.choice:disabled:not(.ok):not(.bad){opacity:.55}
+.answer input:focus{outline:none;border-color:var(--plate)}
+.under{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;flex-wrap:wrap}
+.clock{font-family:"Barlow Condensed",sans-serif;font-size:1.3rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.fb{margin-top:20px;min-height:96px}
+.fb .verdict{font-weight:600;font-size:1.1rem;margin:0}
+.fb .verdict.ok{color:var(--ok)}
+.fb .verdict.bad{color:var(--bad)}
+.fb .words{font-size:1.15rem;margin:4px 0 0}
+.fb .you{color:var(--muted);margin:4px 0 0}
+.fb .btn{margin-top:12px}
+
+/* done */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0 10px}
+.stat{background:var(--surface);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:2.1rem;line-height:1.05;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:.9rem}
+.best{margin:0 0 22px;color:var(--muted)}
+.list{list-style:none;padding:0;margin:0 0 24px;border-top:1px solid var(--line)}
+.list li{display:grid;grid-template-columns:1.6rem 1fr auto;gap:4px 10px;padding:10px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.list .mark{font-weight:700}
+.list .mark.ok{color:var(--ok)} .list .mark.bad{color:var(--bad)}
+.list .d{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:1.2rem;font-variant-numeric:tabular-nums}
+.list .w{grid-column:2/4;color:var(--muted)}
+.list .t{color:var(--muted);font-variant-numeric:tabular-nums}
+.list .y{color:var(--bad)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section id="setup">
+  <div class="head"><h1>À l’oreille</h1><button class="icon-btn" id="gear" type="button" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button></div>
+  <p class="lede">Hear a number in French, type it in digits as fast as you can. The quicker you answer, the more points you get.</p>
+
+  <div id="noSpeech" class="warn" hidden><strong>Open this page in Chrome to hear the numbers.</strong> This view can’t play speech, so the round can’t start here. In Chrome, use ⋮ › Add to Home screen to get a one-tap shortcut.</div>
+
+  <div id="noVoice" class="warn" hidden>No French voice was found on this device, so the numbers may be read with an English accent. On Android, go to Settings › General management › Text-to-speech, tap the gear next to the engine, then Install voice data › French. On iPhone, Settings › Accessibility › Spoken Content › Voices › French.</div>
+
+  <fieldset>
+    <legend>What to practise</legend>
+    <div class="chips" id="modes"></div>
+    <p class="hint" id="hint" aria-live="polite"></p>
+  </fieldset>
+
+  <fieldset>
+    <legend>Answer by</legend>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="style" value="type" checked><span>Typing it</span></label>
+      <label class="chip"><input type="radio" name="style" value="choose"><span>Picking from choices</span></label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Round length</legend>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="len" value="10" checked><span>10 numbers</span></label>
+      <label class="chip"><input type="radio" name="len" value="20"><span>20 numbers</span></label>
+      <label class="chip"><input type="radio" name="len" value="30"><span>30 numbers</span></label>
+    </div>
+  </fieldset>
+
+
+  <div class="row" style="margin-top:8px">
+    <button class="btn primary big" id="start" type="button">Start round</button>
+    <span class="note" id="bestSetup"></span>
+  </div>
+</section>
+
+<section id="prefs" hidden>
+  <h1>Settings</h1>
+  <p class="lede">These apply to every round.</p>
+
+  <fieldset>
+    <legend>How you answer</legend>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="answer" value="type" checked><span>Typing</span></label>
+      <label class="chip"><input type="radio" name="answer" value="speak"><span>Saying it in English</span></label>
+    </div>
+    <p class="hint" id="answerHint"></p>
+    <div class="row" id="micTestRow" hidden style="margin-top:10px">
+      <button class="btn" id="micTest" type="button">Test microphone</button>
+    </div>
+    <p class="hint" id="micStatus" aria-live="polite"></p>
+  </fieldset>
+
+  <fieldset>
+    <legend>Number of choices</legend>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="nchoices" value="3"><span>3</span></label>
+      <label class="chip"><input type="radio" name="nchoices" value="4" checked><span>4</span></label>
+      <label class="chip"><input type="radio" name="nchoices" value="5"><span>5</span></label>
+      <label class="chip"><input type="radio" name="nchoices" value="6"><span>6</span></label>
+    </div>
+    <p class="hint">Used when you answer by picking from choices. Includes the correct answer.</p>
+  </fieldset>
+
+  <fieldset>
+    <legend>Speaking speed</legend>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="speed" value="0.8"><span>Slower</span></label>
+      <label class="chip"><input type="radio" name="speed" value="1" checked><span>Normal</span></label>
+      <label class="chip"><input type="radio" name="speed" value="1.25"><span>Fast</span></label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Pause after a correct answer</legend>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="pause" value="0.15"><span>None</span></label>
+      <label class="chip"><input type="radio" name="pause" value="0.5" checked><span>Short</span></label>
+      <label class="chip"><input type="radio" name="pause" value="1"><span>Medium</span></label>
+      <label class="chip"><input type="radio" name="pause" value="1.5"><span>Long</span></label>
+    </div>
+  </fieldset>
+
+  <fieldset id="voiceSet">
+    <legend>Voice</legend>
+    <div class="row">
+      <select id="voice" aria-label="French voice"></select>
+      <button class="btn" id="test" type="button">Test voice</button>
+    </div>
+    <p class="warn speechMsg" role="status" hidden></p>
+  </fieldset>
+
+  <button class="btn primary big" id="prefsDone" type="button">Done</button>
+</section>
+
+<section id="play" hidden>
+  <div class="top">
+    <span class="cond lead"><button class="icon-btn" id="leave" type="button" aria-label="Leave round" title="Leave round"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span id="prog">1 / 10</span></span>
+    <span class="cond lead"><span><span class="score" id="score">0</span> pts</span><button class="btn small" id="quit" type="button">End round</button></span>
+  </div>
+  <div class="track" id="track"></div>
+
+  <div class="plaque" id="plaque"><div class="num" id="num">?</div></div>
+
+  <form class="answer" id="form" autocomplete="off">
+    <input id="input" type="text" inputmode="numeric" placeholder="Type the number" aria-label="Your answer" enterkeyhint="go">
+    <button class="btn primary" type="submit">Check</button>
+  </form>
+  <div class="choices" id="choices" hidden></div>
+  <div class="under">
+    <span class="clock" id="clock">0.0 s</span>
+    <span class="row">
+      <button class="btn" id="mic" type="button" hidden>Tap to speak</button>
+      <button class="btn" id="replay" type="button">Hear again</button>
+      <button class="btn" id="skip" type="button">Skip</button>
+    </span>
+  </div>
+  <p class="warn speechMsg" role="status" hidden></p>
+  <p class="note" id="playNote">Enter checks your answer. Shift+Enter plays the number again.</p>
+
+  <p class="note" id="micMsg" aria-live="polite"></p>
+  <div class="fb" id="fb" aria-live="polite"></div>
+</section>
+
+<section id="done" hidden>
+  <h1>Round over</h1>
+  <div class="stats">
+    <div class="stat"><b id="sScore">0</b><span>points</span></div>
+    <div class="stat"><b id="sAcc">0%</b><span>correct</span></div>
+    <div class="stat"><b id="sAvg">–</b><span>avg seconds</span></div>
+  </div>
+  <p class="best" id="sBest"></p>
+  <ul class="list" id="list"></ul>
+  <div class="row">
+    <button class="btn primary" id="again" type="button">Play again</button>
+    <button class="btn" id="misses" type="button">Practise my misses</button>
+    <button class="btn" id="settings" type="button">Main screen</button>
+  </div>
+</section>
+
+</div>
+<script>
+/* ---------- French number words ---------- */
+const U=['zéro','un','deux','trois','quatre','cinq','six','sept','huit','neuf','dix','onze','douze','treize','quatorze','quinze','seize'];
+const MONTHS_EN=['january','february','march','april','may','june','july','august','september','october','november','december'];
+const MONTHS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function u100(n,fin=true){
+  if(n<17)return U[n];
+  if(n<20)return 'dix-'+U[n-10];
+  const t=Math.floor(n/10),u=n%10;
+  if(t<7){const T=['','','vingt','trente','quarante','cinquante','soixante'][t];return u===0?T:u===1?T+' et un':T+'-'+U[u];}
+  if(t===7)return u===1?'soixante et onze':'soixante-'+u100(10+u);
+  if(t===8)return u===0?(fin?'quatre-vingts':'quatre-vingt'):'quatre-vingt-'+U[u];
+  return 'quatre-vingt-'+u100(10+u);
+}
+function u1000(n,fin=true){
+  const h=Math.floor(n/100),r=n%100;let s='';
+  if(h){s=h===1?'cent':U[h]+' cent';if(r===0&&fin&&h>1)s+='s';}
+  if(r)s+=(s?' ':'')+u100(r,fin);
+  return s;
+}
+function fr(n){
+  if(n===0)return 'zéro';
+  const m=Math.floor(n/1e6),k=Math.floor(n/1000)%1000,r=n%1000,p=[];
+  if(m)p.push(m===1?'un million':u1000(m,true)+' millions');
+  if(k)p.push(k===1?'mille':u1000(k,false)+' mille');
+  if(r)p.push(u1000(r,true));
+  return p.join(' ');
+}
+
+/* ---------- helpers ---------- */
+const $=id=>document.getElementById(id);
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const pad=n=>String(n).padStart(2,'0');
+const grp=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202F');
+const digits=s=>s.replace(/\D/g,'');
+const plain=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function confuse(n){
+  const out=[],add=x=>{if(x>=0&&x!==n&&!out.includes(x))out.push(x)};
+  const r=n%100,base=n-r,s=String(n);
+  if(r>=60&&r<70)add(n+10);
+  if(r>=70&&r<80){add(n-10);add(n+20);add(n-60)}
+  if(r>=80&&r<90){add(n+10);add(n-60);add(n-10)}
+  if(r>=90){add(n-10);add(n-20);add(n-80)}
+  if(r>=11&&r<=16)add(n-10);
+  if(r>=1&&r<=6)add(n+10);
+  if(r%10===0&&r>=30&&r<=60)add(base+r/10+10);
+  if(r>=13&&r<=16)add(base+(r-10)*10);
+  if(r>=10&&r<60){add(n+10);add(n-10)}
+  add(n+1);add(n-1);
+  for(let i=0;i<s.length-2;i++){const d=+s[i];for(const dd of[d+1,d-1]){if(dd<0||dd>9||(i===0&&dd===0))continue;add(+(s.slice(0,i)+dd+s.slice(i+1)))}}
+  return out;
+}
+function poolFor(n,min,max){
+  const c=shuffle(confuse(n).filter(x=>x>=min&&x<=max));
+  const rnd=[];for(let i=0;i<40;i++){const x=n+(Math.random()<.5?-1:1)*R(2,Math.max(5,Math.round(n*.1)));if(x>=min&&x<=max&&x!==n)rnd.push(x)}
+  return c.concat(rnd);
+}
+function intItem(n,say,o={}){
+  const w=say||fr(n),fmt=o.fmt||grp,min=o.min??0,max=o.max??Infinity;
+  return{display:fmt(n),say:w,words:w,check:s=>digits(s)===String(n),alts:()=>poolFor(n,min,max).map(fmt)};
+}
+
+/* ---------- modes ---------- */
+const MODES={
+  small:{label:'0 to 60',hint:'The building blocks, from zéro to soixante.',make:()=>intItem(R(0,60))},
+  upto99:{label:'0 to 99',hint:'Everything under a hundred, including the 70s, 80s and 90s.',make:()=>intItem(R(0,99))},
+  tricky:{label:'60 to 99',hint:'Soixante-dix, quatre-vingts, quatre-vingt-dix and the rest.',make:()=>intItem(R(60,99))},
+  hundreds:{label:'Hundreds',hint:'100 to 999, often ending in the 70s, 80s or 90s.',make:()=>{const h=R(1,9),r=Math.random()<.6?R(70,99):R(0,99);return intItem(h*100+r)}},
+  thousands:{label:'Thousands',hint:'1 000 to 999 999.',make:()=>{const d=R(4,6);return intItem(R(10**(d-1),10**d-1))}},
+  years:{label:'Years',hint:'You’ll hear “en mille six cent quatre-vingt-cinq”. Type 1685.',make:()=>{const y=Math.random()<.85?R(1500,2099):R(1000,1499);return intItem(y,'en '+fr(y),{fmt:String,min:1000,max:2099})}},
+  dates:{label:'Full dates',hint:'Day, month and year. Type 14/7/1789 or 14 juillet 1789.',input:'text',make:()=>{
+    const y=R(1600,2030),m=R(1,12),d=R(1,[31,28,31,30,31,30,31,31,30,31,30,31][m-1]);
+    const w='le '+(d===1?'premier':fr(d))+' '+MONTHS[m-1]+' '+fr(y);
+    const fd=(dd,mm,yy)=>`${pad(dd)}/${pad(mm)}/${yy}`;
+    const alts=()=>{const a=[];
+      for(const x of poolFor(d,1,31).slice(0,4))a.push(fd(x,m,y));
+      for(const x of poolFor(y,1000,2099).slice(0,4))a.push(fd(d,m,x));
+      a.push(fd(d,m===12?11:m+1,y),fd(d,m===1?2:m-1,y));
+      return shuffle(a).concat(poolFor(y,1000,2099).map(x=>fd(d,m,x)));};
+    return{alts,display:fd(d,m,y),say:w,words:w,check:s=>{
+      let g=(s.match(/\d+/g)||[]).map(Number);
+      if(g.length===2){const p=plain(s);let mi=MONTHS.findIndex(x=>p.includes(plain(x)));if(mi<0)mi=MONTHS_EN.findIndex(x=>p.includes(x));if(mi>=0)g=[g[0],mi+1,g[1]];}
+      return g.length===3&&g[0]===d&&g[1]===m&&g[2]===y;}};
+  }},
+  prices:{label:'Prices',hint:'Euros and cents. Type 12,50 or 12.50.',input:'decimal',make:()=>{
+    const e=Math.random()<.5?R(1,99):R(100,999),c=Math.random()<.25?0:R(1,99);
+    const w=fr(e)+(e>1?' euros':' euro')+(c?' '+fr(c):'');
+    const fp=(ee,cc)=>`${grp(ee)},${pad(cc)} €`;
+    const alts=()=>shuffle(poolFor(e,1,999).slice(0,4).map(x=>fp(x,c)).concat(poolFor(c,0,99).slice(0,4).map(x=>fp(e,x)))).concat(poolFor(e,1,999).map(x=>fp(x,c)));
+    return{alts,display:fp(e,c),say:w,words:w,check:s=>{const x=parseFloat(s.replace(/[\s€]/g,'').replace(',','.'));return!isNaN(x)&&Math.round(x*100)===e*100+c}};
+  }},
+  phone:{label:'Phone numbers',hint:'Said in pairs: zéro six, douze, trente-quatre… Type all 10 digits.',make:()=>{
+    let d='0'+pick('12345679');for(let i=0;i<8;i++)d+=R(0,9);
+    const pairs=d.match(/../g),w=pairs.map(p=>p[0]==='0'?'zéro '+U[+p[1]]:fr(+p)).join(', ');
+    const alts=()=>{const a=[];for(let k=0;k<30;k++){const i=R(1,4),v=pick(poolFor(+pairs[i],0,99).slice(0,5));const q=pairs.slice();q[i]=pad(v);a.push(q.join(' '))}return a};
+    return{alts,display:pairs.join(' '),say:w,words:w,check:s=>digits(s)===d};
+  }},
+  mix:{label:'Mix',hint:'A bit of everything.',input:'text',make:()=>{const k=pick(['upto99','tricky','hundreds','thousands','years','dates','prices','phone']);const it=MODES[k].make();it.input=MODES[k].input;return it}}
+};
+const modesEl=$('modes');
+Object.entries(MODES).forEach(([k,m],i)=>{
+  modesEl.insertAdjacentHTML('beforeend',`<label class="chip"><input type="radio" name="mode" value="${k}"${i===0?' checked':''}><span>${m.label}</span></label>`);
+});
+
+/* ---------- settings ---------- */
+const SRok=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+// false inside the Claude artifact view, which doesn't pass the microphone down to the page
+const micOK=document.featurePolicy?document.featurePolicy.allowsFeature('microphone'):window.self===window.top;
+const val=n=>document.querySelector(`input[name="${n}"]:checked`).value;
+function setVal(n,v){const el=document.querySelector(`input[name="${n}"][value="${v}"]`);if(el)el.checked=true}
+try{const s=JSON.parse(store.get('settings')||'{}');if(s.mode)setVal('mode',s.mode);if(s.len)setVal('len',s.len);if(s.speed)setVal('speed',s.speed);if(s.pause)setVal('pause',s.pause);if(s.answer)setVal('answer',s.answer);if(s.style)setVal('style',s.style);if(s.nchoices)setVal('nchoices',s.nchoices)}catch(e){}
+function onSettings(){
+  const wantMic=val('answer')==='speak'&&SRok&&micOK;
+  $('micTestRow').hidden=!wantMic;if(!wantMic)$('micStatus').textContent='';
+  if(wantMic&&!permChecked){permChecked=true;micPermCheck()}
+  $('answerHint').textContent=val('answer')==='speak'?(SRok?(micOK?'The mic turns on after each number. Say it in English, like “sixteen eighty-five” or “July fourteenth, seventeen eighty-nine”.':'Spoken answers don’t work when this page is opened as a Claude artifact, so you’ll type instead. To answer by voice, open it as a normal web page in Chrome.'):'This browser can’t listen for answers. Open the page in Chrome to use this.'):'';
+  $('hint').textContent=MODES[val('mode')].hint;
+  const b=+store.get(`best:${val('mode')}:${val('len')}`)||0;
+  $('bestSetup').textContent=b?`Your best here: ${grp(b)} pts`:'';
+  store.set('settings',JSON.stringify({mode:val('mode'),len:val('len'),speed:val('speed'),pause:val('pause'),answer:val('answer'),style:val('style'),nchoices:val('nchoices')}));
+}
+document.querySelectorAll('#setup input[type=radio],#prefs input[type=radio]').forEach(r=>r.addEventListener('change',onSettings));
+onSettings();
+
+/* ---------- speech ---------- */
+const SS=window.speechSynthesis;
+let voices=[],voice=null,sid=0;
+function noSpeech(on){
+  $('noSpeech').hidden=!on;$('start').disabled=on;$('start').style.opacity=on?.5:'';
+  if(on){$('noVoice').hidden=true;$('voiceSet').hidden=true}
+}
+function loadVoices(){
+  if(!SS||typeof SpeechSynthesisUtterance==='undefined'){noSpeech(true);return}
+  const all=SS.getVoices();
+  if(all.length)noSpeech(false);
+  voices=all.filter(v=>/^fr/i.test(v.lang)).sort((a,b)=>(b.lang==='fr-FR')-(a.lang==='fr-FR'));
+  const sel=$('voice');sel.innerHTML='';
+  voices.forEach((v,i)=>sel.insertAdjacentHTML('beforeend',`<option value="${i}">${v.name} (${v.lang})</option>`));
+  const saved=store.get('voice');const idx=Math.max(0,voices.findIndex(v=>v.name===saved));
+  voice=voices[idx]||null;sel.value=String(idx);
+  $('noVoice').hidden=!(all.length&&!voices.length);
+  $('voiceSet').hidden=!voices.length;
+}
+if(SS){SS.onvoiceschanged=loadVoices}
+loadVoices();
+setTimeout(()=>{if(!SS||!SS.getVoices().length)noSpeech(true)},2000);
+$('voice').addEventListener('change',e=>{voice=voices[+e.target.value]||null;if(voice)store.set('voice',voice.name);speakMsg('')});
+let keepMsg=false;
+function speakMsg(t,keep){keepMsg=!!keep;document.querySelectorAll('.speechMsg').forEach(m=>{m.textContent=t;m.hidden=!t})}
+function speak(text,done){
+  const id=++sid;
+  if(!SS){done&&done();return}
+  SS.cancel();
+  const rate=+val('speed');
+  let fired=false,started=false,to;
+  const fin=()=>{if(fired||id!==sid)return;fired=true;clearTimeout(to);done&&done()};
+  setTimeout(()=>{
+    if(id!==sid)return;
+    const u=new SpeechSynthesisUtterance(text);u.lang='fr-FR';if(voice)u.voice=voice;u.rate=rate;
+    u.onstart=()=>{started=true;if(!keepMsg)speakMsg('')};
+    u.onend=fin;
+    u.onerror=e=>{
+      if(id!==sid||e.error==='interrupted'||e.error==='canceled')return fin();
+      if(e.error==='not-allowed'){speakMsg('Chrome blocked the sound. Tap Hear again or Test voice to play it.');return fin()}
+      if(voice){speakMsg(`The voice “${voice.name}” failed (${e.error}), so the phone’s default French voice is used instead.`,true);voice=null;return speak(text,done)}
+      speakMsg(`Speech failed (${e.error}). Pick another voice in Settings or check the phone’s text-to-speech settings.`);fin();
+    };
+    to=setTimeout(()=>{if(id===sid&&!started)speakMsg('No sound started. Check the media volume, then tap Hear again.');fin()},1500+text.length*110/rate);
+    SS.speak(u);
+  },60);
+}
+$('test').addEventListener('click',()=>speak('quatre-vingt-dix-sept'));
+
+/* ---------- game ---------- */
+let S=null;
+const input=$('input'),plaque=$('plaque'),num=$('num');
+function show(id){['setup','prefs','play','done'].forEach(s=>$(s).hidden=s!==id);window.scrollTo(0,0)}
+function startRound(items,mode){
+  S={mode,items,i:0,score:0,streak:0,results:[],phase:'idle'};
+  $('track').innerHTML=items.map(()=>'<div class="seg"></div>').join('');
+  $('score').textContent='0';
+  $('mic').hidden=!speakMode();
+  $('form').hidden=chooseMode();$('choices').hidden=!chooseMode();
+  $('playNote').textContent=chooseMode()?'Tap the number you hear. On a keyboard, press 1 to '+val('nchoices')+'.':speakMode()?'Say the number in English when the voice stops. You can still type if you prefer.':'Enter checks your answer. Shift+Enter plays the number again.';
+  $('micMsg').textContent='';
+  show('play');next();
+}
+function paintTrack(){
+  [...$('track').children].forEach((seg,i)=>{
+    const r=S.results[i];seg.className='seg'+(r?(r.ok?' ok':' bad'):(i===S.i?' cur':''));
+  });
+}
+function next(){
+  if(S.i>=S.items.length)return finish();
+  const it=S.items[S.i];
+  S.replays=0;S.tStart=null;S.missed=false;S.wrongPicks=[];S.phase='answer';
+  plaque.className='plaque';num.textContent='?';
+  $('fb').innerHTML='';$('clock').textContent='0.0 s';
+  if(chooseMode())renderChoices(it);
+  input.value='';input.inputMode=it.input||MODES[S.mode]?.input||'numeric';
+  $('prog').textContent=`${S.i+1} / ${S.items.length}`;
+  paintTrack();focusInput();
+  sayCurrent();
+}
+function sayCurrent(){
+  stopListening();
+  plaque.classList.add('listening');
+  speak(S.items[S.i].say,()=>{
+    plaque.classList.remove('listening');
+    if(S.phase==='answer'&&S.tStart===null){S.tStart=performance.now();tick()}
+    if(S.phase==='answer'&&speakMode())listen();
+  });
+}
+function tick(){
+  if(!S||S.phase!=='answer'||S.tStart===null)return;
+  $('clock').textContent=((performance.now()-S.tStart)/1000).toFixed(1)+' s';
+  requestAnimationFrame(tick);
+}
+function replay(){if(S&&S.phase==='answer'){S.replays++;sayCurrent();focusInput()}}
+function renderChoices(it){
+  const k=+val('nchoices'),opts=[];
+  for(const x of it.alts()){if(opts.length>=k-1)break;if(x!==it.display&&!opts.includes(x))opts.push(x)}
+  opts.push(it.display);shuffle(opts);
+  $('choices').innerHTML=opts.map((o,i)=>`<button class="choice" type="button" data-v="${o}">${o}</button>`).join('');
+  [...$('choices').children].forEach(b=>b.addEventListener('click',()=>{if(S.phase==='feedback')advance();else submit(false,null,b.dataset.v)}));
+}
+function submit(skip,alts,choice){
+  if(!S||S.phase!=='answer')return;
+  const v=skip?'':choice!=null?choice:alts?alts[0].trim():input.value.trim();
+  if(!skip&&!v)return;
+  const it=S.items[S.i];
+  const t=S.tStart?(performance.now()-S.tStart)/1000:0;
+  const ok=!skip&&(choice!=null?choice===it.display:(alts||[v]).some(a=>candidates(a).some(c=>it.check(c))));
+  if(!skip&&!ok){
+    S.missed=true;S.streak=0;S.wrongPicks.push(v);
+    const btns=[...$('choices').children];
+    btns.forEach(b=>{b.disabled=true;if(b.dataset.v===choice)b.classList.add('bad')});
+    plaque.className='plaque bad';
+    $('fb').innerHTML=chooseMode()?'<p class="verdict bad">Not quite. Listen again and pick another.</p>':'<p class="verdict bad">Not quite. Listen again and try another answer.</p>';
+    if(!chooseMode())input.value='';
+    plaque.classList.add('listening');
+    speak(it.say,()=>{
+      plaque.classList.remove('listening');
+      if(!S||S.phase!=='answer'||S.items[S.i]!==it)return;
+      plaque.className='plaque';
+      if(chooseMode()){$('fb').innerHTML='';btns.forEach(b=>{b.classList.remove('bad');b.disabled=S.wrongPicks.includes(b.dataset.v)})}
+      else{focusInput();if(speakMode())listen()}
+    });
+    focusInput();
+    return;
+  }
+  if(ok&&S.missed){
+    S.phase='feedback';
+    S.results.push({it,v:S.wrongPicks[0],ok:false,t,pts:0});
+    [...$('choices').children].forEach(b=>{b.disabled=b.dataset.v!==it.display;if(b.dataset.v===it.display)b.classList.add('ok')});
+    plaque.className='plaque ok';num.textContent=it.display;
+    $('fb').innerHTML=`<p class="verdict ok">That’s it. No points this time, since it took more than one try.</p><p class="words" lang="fr">${it.words}</p>`;
+    paintTrack();
+    S.timer=setTimeout(advance,Math.max(+val('pause')*1000,1200));
+    return;
+  }
+  if(choice!=null||chooseMode())[...$('choices').children].forEach(b=>{b.disabled=!(b.dataset.v===it.display&&!ok);if(b.dataset.v===it.display)b.classList.add('ok');else if(b.dataset.v===choice)b.classList.add('bad')});
+  S.phase='feedback';stopListening();
+  let pts=0;
+  if(ok){S.streak++;pts=Math.max(10,Math.round(100-Math.max(0,t-1)*15)-S.replays*15)+Math.min(50,(S.streak-1)*10);S.score+=pts}
+  else S.streak=0;
+  S.results.push({it,v,ok,t,pts});
+  plaque.className='plaque '+(ok?'ok':'bad');num.textContent=it.display;
+  $('score').textContent=grp(S.score);$('clock').textContent=t.toFixed(1)+' s';
+  const words=`<p class="words" lang="fr">${it.words}</p>`;
+  if(ok){
+    $('fb').innerHTML=`<p class="verdict ok">Correct, +${pts} points in ${t.toFixed(1)} s${S.streak>1?` (streak of ${S.streak})`:''}</p>${words}`;
+    S.timer=setTimeout(advance,+val('pause')*1000);
+  }else{
+    $('fb').innerHTML=`<p class="verdict bad">${skip?'Skipped':'Not quite'}. It was ${it.display}</p>${words}${v?`<p class="you">You ${choice!=null?'picked':alts?'said':'typed'} “${v.replace(/</g,'&lt;')}”</p>`:''}<button class="btn primary" type="button" id="nextBtn">Next number</button>`;
+    $('nextBtn').addEventListener('click',advance);
+    input.value='';
+    speak(it.say);
+  }
+  paintTrack();focusInput();
+}
+function advance(){
+  if(!S||S.phase!=='feedback')return;
+  $('micMsg').textContent='';
+  clearTimeout(S.timer);S.i++;next();
+}
+document.addEventListener('keydown',e=>{
+  if(!S||$('play').hidden||!chooseMode())return;
+  if(e.key==='Enter'&&S.phase==='feedback'){e.preventDefault();advance();return}
+  const n=+e.key;if(S.phase==='answer'&&n>=1){const b=$('choices').children[n-1];if(b){e.preventDefault();b.click()}}
+});
+$('form').addEventListener('submit',e=>{e.preventDefault();if(S&&S.phase==='feedback')advance();else submit(false)});
+input.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.shiftKey){e.preventDefault();replay()}});
+$('replay').addEventListener('click',replay);
+$('skip').addEventListener('click',()=>submit(true));
+$('quit').addEventListener('click',()=>{if(!S)return;stopListening();clearTimeout(S.timer);sid++;SS&&SS.cancel();S.results.length?finish():show('setup')});
+function leaveRound(){if(!S)return;stopListening();clearTimeout(S.timer);S.phase='left';sid++;SS&&SS.cancel();show('setup')}
+$('leave').addEventListener('click',leaveRound);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('play').hidden)leaveRound()});
+
+/* ---------- answering by voice ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec=null;
+const chooseMode=()=>val('style')==='choose';
+const speakMode=()=>val('answer')==='speak'&&!!SR&&micOK&&!chooseMode();
+function focusInput(){if(!speakMode()&&!chooseMode())input.focus({preventScroll:true})}
+function setMic(on){const b=$('mic');b.classList.toggle('on',on);b.textContent=on?'Listening…':'Tap to speak'}
+function stopListening(){if(rec){const r=rec;rec=null;try{r.abort()}catch(e){}}setMic(false)}
+function listen(){
+  if(!SR||!S||S.phase!=='answer')return;
+  stopListening();
+  const r=new SR();rec=r;
+  r.lang='en-US';r.interimResults=true;r.continuous=false;r.maxAlternatives=5;
+  r.onresult=e=>{
+    if(rec!==r)return;
+    let txt='',alts=[];
+    for(const res of e.results){txt+=res[0].transcript;if(res.isFinal)for(const a of res)alts.push(a.transcript)}
+    input.value=txt;
+    if(alts.length)submit(false,alts);
+  };
+  r.onerror=e=>{
+    if(e.error==='not-allowed'||e.error==='service-not-allowed')$('micMsg').textContent='Microphone access is blocked. Allow it for this page in Chrome, or switch back to typing in Settings.';
+    else if(e.error==='no-speech')$('micMsg').textContent='Didn’t catch that. Tap to speak and try again.';
+  };
+  r.onend=()=>{if(rec===r){rec=null;setMic(false)}};
+  try{r.start();setMic(true);$('micMsg').textContent=''}catch(e){}
+}
+$('mic').addEventListener('click',listen);
+
+/* ---------- microphone check ---------- */
+var permChecked=false,testRec=null;
+const MIC_BLOCKED='Microphone is blocked for this page. In Chrome, go to ⋮ › Settings › Site settings › Microphone, allow this site, then tap Test microphone again.';
+function showPerm(state){
+  const m=$('micStatus');
+  if(state==='granted')m.textContent='✓ Microphone is on. Tap Test microphone to check it hears you.';
+  else if(state==='denied')m.textContent=MIC_BLOCKED;
+  else m.textContent='Tap Test microphone and allow access when Chrome asks.';
+}
+function micPermCheck(){
+  if(!navigator.permissions||!navigator.permissions.query){showPerm('prompt');return}
+  navigator.permissions.query({name:'microphone'}).then(st=>{showPerm(st.state);st.onchange=()=>showPerm(st.state)}).catch(()=>showPerm('prompt'));
+}
+$('micTest').addEventListener('click',()=>{
+  const Rec=window.SpeechRecognition||window.webkitSpeechRecognition;if(!Rec)return;
+  const b=$('micTest'),m=$('micStatus');
+  if(testRec){try{testRec.abort()}catch(e){}testRec=null}
+  const r=new Rec();testRec=r;r.lang='en-US';r.interimResults=true;r.continuous=false;
+  let heard='';
+  r.onstart=()=>{b.textContent='Listening…';b.classList.add('on');m.textContent='Say a number in English, like “seventy-two”.'};
+  r.onresult=e=>{heard='';for(const res of e.results)heard+=res[0].transcript;m.textContent='Hearing: “'+heard+'”'};
+  r.onerror=e=>{
+    if(e.error==='not-allowed'||e.error==='service-not-allowed')m.textContent=MIC_BLOCKED;
+    else if(e.error==='no-speech')m.textContent='Didn’t hear anything. Check nothing is covering the mic and try again.';
+    else if(e.error==='audio-capture')m.textContent='No microphone was found. Check another app isn’t using it, then try again.';
+    else m.textContent='The microphone test didn’t work ('+e.error+'). Try again.';
+  };
+  r.onend=()=>{b.textContent='Test microphone';b.classList.remove('on');if(testRec===r)testRec=null;if(heard)m.textContent='✓ Heard “'+heard+'”. Your microphone works.'};
+  try{r.start()}catch(e){m.textContent='Couldn’t start the microphone. Try again.'}
+});
+
+const EN={zero:0,oh:0,o:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fourty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90,first:1,second:2,third:3,fourth:4,fifth:5,sixth:6,seventh:7,eighth:8,ninth:9,tenth:10,eleventh:11,twelfth:12,thirteenth:13,fourteenth:14,fifteenth:15,sixteenth:16,seventeenth:17,eighteenth:18,nineteenth:19,twentieth:20,thirtieth:30};
+const MULT={hundred:100,thousand:1000,million:1e6};
+function wordsToDigits(text){
+  const toks=text.toLowerCase().replace(/(\d),(?=\d{3}\b)/g,'$1').replace(/[$€£]/g,' ').replace(/-/g,' ').split(/\s+/).filter(Boolean)
+    .map(t=>({t:t.replace(/[.,!?;:]+$/,'').replace(/^(\d+)(st|nd|rd|th)$/,'$1'),end:/[,;:!?]$|^\d+(st|nd|rd|th)[.,]?$|(first|second|third|th)[.,]?$/.test(t)}));
+  const out=[];let run=null,ch=null,prev=null;
+  const closeChunk=()=>{if(ch){run.push(String(ch.total+ch.cur));ch=null}};
+  const closeRun=()=>{closeChunk();if(run){out.push(run);run=null}};
+  for(let i=0;i<toks.length;i++){
+    let t=toks[i].t;const end=toks[i].end;
+    if(t==='a'&&MULT[(toks[i+1]||{}).t])t='one';
+    if(end&&(/^\d+$/.test(t)||t in EN)){
+      if(/^\d+$/.test(t)){if(!run)run=[];closeChunk();run.push(t)}
+      else{if(!run)run=[];if(ch&&(prev==='unit'||prev==='teen'||(prev==='tens'&&EN[t]>=10)))closeChunk();if(!ch)ch={total:0,cur:0};ch.cur+=EN[t]}
+      closeRun();prev=null;continue;
+    }
+    if(/^\d+(\.\d+)?$/.test(t)){if(!run)run=[];closeChunk();run.push(t);prev='digit';continue}
+    if(t in EN){
+      const v=EN[t];if(!run)run=[];
+      if(ch&&(prev==='unit'||prev==='teen'||(prev==='tens'&&v>=10)))closeChunk();
+      if(v===0){closeChunk();run.push('0');prev='zero';continue}
+      if(!ch)ch={total:0,cur:0};
+      ch.cur+=v;prev=v<10?'unit':v<20?'teen':'tens';continue;
+    }
+    if(t in MULT&&ch){if(MULT[t]===100)ch.cur*=100;else{ch.total+=ch.cur*MULT[t];ch.cur=0}prev='mult';continue}
+    if(t==='and'&&ch&&prev==='mult')continue;
+    if(t==='point'&&run){closeChunk();run.push('.');prev='point';continue}
+    closeRun();out.push(t);prev=null;
+  }
+  closeRun();
+  return out;
+}
+function candidates(raw){
+  const out=wordsToDigits(raw);
+  const A=out.map(x=>typeof x==='string'?x:x.join('')).join(' ');
+  const B=out.map(x=>{if(typeof x==='string')return x;const r=x.filter(p=>p!=='.');return r.length===2?r[0]+'.'+r[1].padStart(2,'0'):x.join('')}).join(' ');
+  const nums=A.match(/\d+(\.\d+)?/g)||[];
+  const C=nums.length===2&&!nums[0].includes('.')&&!nums[1].includes('.')?nums[0]+'.'+nums[1].padStart(2,'0'):A;
+  return [raw,A,B,C];
+}
+
+function finish(){
+  stopListening();clearTimeout(S.timer);S.phase='done';sid++;SS&&SS.cancel();
+  const n=S.results.length,good=S.results.filter(r=>r.ok);
+  $('sScore').textContent=grp(S.score);
+  $('sAcc').textContent=Math.round(good.length/n*100)+'%';
+  $('sAvg').textContent=good.length?(good.reduce((a,r)=>a+r.t,0)/good.length).toFixed(1):'–';
+  let bestTxt='';
+  if(S.mode!=='misses'&&n===S.items.length){
+    const key=`best:${S.mode}:${n}`,b=+store.get(key)||0;
+    if(S.score>b){store.set(key,S.score);bestTxt=b?`New best for ${MODES[S.mode].label}! Previous: ${grp(b)} pts.`:`First score saved for ${MODES[S.mode].label}.`}
+    else bestTxt=`Your best for ${MODES[S.mode].label}: ${grp(b)} pts.`;
+  }
+  $('sBest').textContent=bestTxt;
+  $('list').innerHTML=S.results.map(r=>`<li><span class="mark ${r.ok?'ok':'bad'}">${r.ok?'✓':'✗'}</span><span class="d">${r.it.display}${!r.ok&&r.v?` <span class="y">(${r.v.replace(/</g,'&lt;')})</span>`:''}</span><span class="t">${r.ok?r.t.toFixed(1)+' s':''}</span><span class="w" lang="fr">${r.it.words}</span></li>`).join('');
+  $('misses').hidden=good.length===n;
+  show('done');onSettings();
+}
+function newRound(){
+  const mode=val('mode'),len=+val('len');
+  startRound(Array.from({length:len},()=>MODES[mode].make()),mode);
+}
+$('start').addEventListener('click',newRound);
+$('gear').addEventListener('click',()=>show('prefs'));
+$('prefsDone').addEventListener('click',()=>show('setup'));
+$('again').addEventListener('click',()=>{if(S.mode==='misses')newRound();else{setVal('mode',S.mode);newRound()}});
+$('misses').addEventListener('click',()=>{const m=shuffle(S.results.filter(r=>!r.ok).map(r=>r.it));startRound(m,'misses')});
+$('settings').addEventListener('click',()=>show('setup'));
+</script>
+</body>
+</html>
