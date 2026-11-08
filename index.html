@@ -139,6 +139,23 @@ select{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(-
     <div class="chips">
       <label class="chip"><input type="radio" name="style" value="type" checked><span>Typing it</span></label>
       <label class="chip"><input type="radio" name="style" value="choose"><span>Picking from choices</span></label>
+      <label class="chip"><input type="radio" name="style" value="speak"><span>Saying it in English</span></label>
+    </div>
+    <p class="hint" id="answerHint" aria-live="polite"></p>
+    <div id="chooseOpts" hidden>
+      <p class="note" id="nchoicesLbl" style="margin:10px 0 8px">How many choices, including the right one</p>
+      <div class="chips" role="radiogroup" aria-labelledby="nchoicesLbl">
+        <label class="chip"><input type="radio" name="nchoices" value="3"><span>3</span></label>
+        <label class="chip"><input type="radio" name="nchoices" value="4" checked><span>4</span></label>
+        <label class="chip"><input type="radio" name="nchoices" value="5"><span>5</span></label>
+        <label class="chip"><input type="radio" name="nchoices" value="6"><span>6</span></label>
+      </div>
+    </div>
+    <div id="micOpts" hidden>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="micTest" type="button">Test microphone</button>
+      </div>
+      <p class="hint" id="micStatus" aria-live="polite"></p>
     </div>
   </fieldset>
 
@@ -161,30 +178,6 @@ select{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(-
 <section id="prefs" hidden>
   <h1>Settings</h1>
   <p class="lede">These apply to every round.</p>
-
-  <fieldset>
-    <legend>How you answer</legend>
-    <div class="chips">
-      <label class="chip"><input type="radio" name="answer" value="type" checked><span>Typing</span></label>
-      <label class="chip"><input type="radio" name="answer" value="speak"><span>Saying it in English</span></label>
-    </div>
-    <p class="hint" id="answerHint"></p>
-    <div class="row" id="micTestRow" hidden style="margin-top:10px">
-      <button class="btn" id="micTest" type="button">Test microphone</button>
-    </div>
-    <p class="hint" id="micStatus" aria-live="polite"></p>
-  </fieldset>
-
-  <fieldset>
-    <legend>Number of choices</legend>
-    <div class="chips">
-      <label class="chip"><input type="radio" name="nchoices" value="3"><span>3</span></label>
-      <label class="chip"><input type="radio" name="nchoices" value="4" checked><span>4</span></label>
-      <label class="chip"><input type="radio" name="nchoices" value="5"><span>5</span></label>
-      <label class="chip"><input type="radio" name="nchoices" value="6"><span>6</span></label>
-    </div>
-    <p class="hint">Used when you answer by picking from choices. Includes the correct answer.</p>
-  </fieldset>
 
   <fieldset>
     <legend>Speaking speed</legend>
@@ -377,16 +370,17 @@ const SRok=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
 const micOK=document.featurePolicy?document.featurePolicy.allowsFeature('microphone'):window.self===window.top;
 const val=n=>document.querySelector(`input[name="${n}"]:checked`).value;
 function setVal(n,v){const el=document.querySelector(`input[name="${n}"][value="${v}"]`);if(el)el.checked=true}
-try{const s=JSON.parse(store.get('settings')||'{}');if(s.mode)setVal('mode',s.mode);if(s.len)setVal('len',s.len);if(s.speed)setVal('speed',s.speed);if(s.pause)setVal('pause',s.pause);if(s.answer)setVal('answer',s.answer);if(s.style)setVal('style',s.style);if(s.nchoices)setVal('nchoices',s.nchoices)}catch(e){}
+try{const s=JSON.parse(store.get('settings')||'{}');if(s.mode)setVal('mode',s.mode);if(s.len)setVal('len',s.len);if(s.speed)setVal('speed',s.speed);if(s.pause)setVal('pause',s.pause);if(s.style)setVal('style',s.style);if(s.nchoices)setVal('nchoices',s.nchoices)}catch(e){}
 function onSettings(){
-  const wantMic=val('answer')==='speak'&&SRok&&micOK;
-  $('micTestRow').hidden=!wantMic;if(!wantMic)$('micStatus').textContent='';
+  const st=val('style'),wantMic=st==='speak'&&SRok&&micOK;
+  $('micOpts').hidden=!wantMic;if(!wantMic)$('micStatus').textContent='';
+  $('chooseOpts').hidden=st!=='choose';
   if(wantMic&&!permChecked){permChecked=true;micPermCheck()}
-  $('answerHint').textContent=val('answer')==='speak'?(SRok?(micOK?'The mic turns on after each number. Say it in English, like “sixteen eighty-five” or “July fourteenth, seventeen eighty-nine”.':'Spoken answers don’t work when this page is opened as a Claude artifact, so you’ll type instead. To answer by voice, open it as a normal web page in Chrome.'):'This browser can’t listen for answers. Open the page in Chrome to use this.'):'';
+  $('answerHint').textContent=st==='type'?'Type the number in digits, then tap Check.':st==='choose'?'Tap the number you hear.':!SRok?'This browser can’t listen for answers, so you’ll type instead. Open the page in Chrome to answer by voice.':!micOK?'Spoken answers don’t work when this page is opened as a Claude artifact, so you’ll type instead. To answer by voice, open it as a normal web page in Chrome.':'The mic turns on after each number. Say it in English, like “sixteen eighty-five” or “July fourteenth, seventeen eighty-nine”. You can still type if you prefer.';
   $('hint').textContent=MODES[val('mode')].hint;
   const b=+store.get(`best:${val('mode')}:${val('len')}`)||0;
   $('bestSetup').textContent=b?`Your best here: ${grp(b)} pts`:'';
-  store.set('settings',JSON.stringify({mode:val('mode'),len:val('len'),speed:val('speed'),pause:val('pause'),answer:val('answer'),style:val('style'),nchoices:val('nchoices')}));
+  store.set('settings',JSON.stringify({mode:val('mode'),len:val('len'),speed:val('speed'),pause:val('pause'),style:val('style'),nchoices:val('nchoices')}));
 }
 document.querySelectorAll('#setup input[type=radio],#prefs input[type=radio]').forEach(r=>r.addEventListener('change',onSettings));
 onSettings();
@@ -571,7 +565,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('play').hidden)l
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let rec=null;
 const chooseMode=()=>val('style')==='choose';
-const speakMode=()=>val('answer')==='speak'&&!!SR&&micOK&&!chooseMode();
+const speakMode=()=>val('style')==='speak'&&!!SR&&micOK;
 function focusInput(){if(!speakMode()&&!chooseMode())input.focus({preventScroll:true})}
 function setMic(on){const b=$('mic');b.classList.toggle('on',on);b.textContent=on?'Listening…':'Tap to speak'}
 function stopListening(){if(rec){const r=rec;rec=null;try{r.abort()}catch(e){}}setMic(false)}
