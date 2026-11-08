@@ -10,20 +10,39 @@
 <style>
 :root{
   --bg:#E4E9F0; --surface:#F6F8FB; --ink:#14213D; --muted:#56627A; --line:#C6CFDC;
-  --plate:#1D3D8F; --frame:#2F7A5B; --ok:#2F7A5B; --bad:#C2362B;
+  --plate:#1D3D8F; --frame:#2F7A5B; --ok:#2F7A5B; --bad:#C2362B; --on:#fff; --on-fill:#fff;
   color-scheme:light; box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#0D1524; --surface:#16213A; --ink:#E7ECF4; --muted:#9AA6BD; --line:#2A3858;
-    --plate:#2549A8; --frame:#3C9A72; --ok:#4FBF8B; --bad:#FF6B5E; color-scheme:dark;
+    --plate:#2549A8; --frame:#3C9A72; --ok:#4FBF8B; --bad:#FF6B5E; --on-fill:#0D1524; color-scheme:dark;
   }
 }
-:root[data-theme="dark"]{
+:root[data-theme="dark"],:root.t-dark,:root.t-midnight{
   --bg:#0D1524; --surface:#16213A; --ink:#E7ECF4; --muted:#9AA6BD; --line:#2A3858;
-  --plate:#2549A8; --frame:#3C9A72; --ok:#4FBF8B; --bad:#FF6B5E; color-scheme:dark;
+  --plate:#2549A8; --frame:#3C9A72; --ok:#4FBF8B; --bad:#FF6B5E; --on-fill:#0D1524; color-scheme:dark;
 }
+/* Settings › Theme: a t-* class on <html> beats the phone's light/dark mode (Auto = no class) */
+:root.t-light{
+  --bg:#E4E9F0; --surface:#F6F8FB; --ink:#14213D; --muted:#56627A; --line:#C6CFDC;
+  --plate:#1D3D8F; --frame:#2F7A5B; --ok:#2F7A5B; --bad:#C2362B; --on-fill:#fff; color-scheme:light;
+}
+:root.t-midnight{--bg:#000; --surface:#0E0E10; --line:#26262B}
+:root.t-contrast{
+  --bg:#000; --surface:#111; --ink:#fff; --muted:#E0E0E0; --line:#fff;
+  --plate:#FFD400; --frame:#FFD400; --ok:#3DDC84; --bad:#FF6B6B; --on:#000; --on-fill:#000; color-scheme:dark;
+}
+:root.t-tricolore{
+  --bg:#fff; --surface:#F3F3FA; --ink:#000091; --muted:#55597A; --line:#CACAFB;
+  --plate:#000091; --frame:#000091; --ok:#18753C; --bad:#E1000F; --on-fill:#fff; color-scheme:light;
+}
+:root.t-cafe{
+  --bg:#F3EAD9; --surface:#FBF6EC; --ink:#3B2A1E; --muted:#6F5A47; --line:#DCCBB0;
+  --plate:#6B3E26; --frame:#8A5A3B; --ok:#44702F; --bad:#B23A2A; --on-fill:#fff; color-scheme:light;
+}
+.t-tricolore .btn.primary{background:var(--bad);border-color:var(--bad)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
 [hidden]{display:none!important}
@@ -38,13 +57,13 @@ legend{font-weight:600;padding:0;margin-bottom:8px}
 .chip{position:relative}
 .chip input{position:absolute;opacity:0;pointer-events:none}
 .chip span{display:block;padding:7px 14px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);cursor:pointer;user-select:none}
-.chip input:checked+span{background:var(--plate);border-color:var(--plate);color:#fff}
+.chip input:checked+span{background:var(--plate);border-color:var(--plate);color:var(--on)}
 .chip input:focus-visible+span{outline:3px solid var(--frame);outline-offset:2px}
 .hint{color:var(--muted);margin:10px 0 0;min-height:1.5em}
 select{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);max-width:100%}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .btn{font:600 1rem Barlow,system-ui,sans-serif;padding:11px 18px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
-.btn.primary{background:var(--plate);border-color:var(--plate);color:#fff}
+.btn.primary{background:var(--plate);border-color:var(--plate);color:var(--on)}
 .btn.big{font-size:1.15rem;padding:14px 28px}
 .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .icon-btn{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
@@ -69,9 +88,9 @@ select{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(-
 .seg.ok{background:var(--ok)}
 .seg.bad{background:var(--bad)}
 .plaque{
-  margin:0 auto 22px;background:var(--plate);color:#fff;
+  margin:0 auto 22px;background:var(--plate);color:var(--on);
   border:8px solid var(--frame);border-radius:20px;
-  box-shadow:inset 0 0 0 4px var(--plate),inset 0 0 0 6px rgba(255,255,255,.9);
+  box-shadow:inset 0 0 0 4px var(--plate),inset 0 0 0 6px var(--on);
   min-height:156px;display:grid;place-items:center;padding:20px 22px;text-align:center;
   transition:border-color .2s;
 }
@@ -83,12 +102,12 @@ select{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(-
 @media (prefers-reduced-motion:reduce){.plaque.listening .num{animation:none}}
 .answer{display:flex;gap:8px}
 .answer input{flex:1;min-width:0;font:600 1.7rem "Barlow Condensed",sans-serif;padding:8px 14px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-variant-numeric:tabular-nums}
-#mic.on,#micTest.on{border-color:var(--frame);background:var(--frame);color:#fff}
+#mic.on,#micTest.on{border-color:var(--frame);background:var(--frame);color:var(--on-fill)}
 .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .choice{font:700 1.6rem "Barlow Condensed","Arial Narrow",sans-serif;font-variant-numeric:tabular-nums;padding:14px 10px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;overflow-wrap:anywhere}
 .choice:focus-visible{outline:3px solid var(--frame);outline-offset:2px}
-.choice.ok{background:var(--ok);border-color:var(--ok);color:#fff}
-.choice.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.choice.ok{background:var(--ok);border-color:var(--ok);color:var(--on-fill)}
+.choice.bad{background:var(--bad);border-color:var(--bad);color:var(--on-fill)}
 .choice:disabled{cursor:default}
 .choice:disabled:not(.ok):not(.bad){opacity:.55}
 .answer input:focus{outline:none;border-color:var(--plate)}
@@ -179,6 +198,20 @@ select{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(-
 <section id="prefs" hidden>
   <h1>Settings</h1>
   <p class="lede">These apply to every round.</p>
+
+  <fieldset>
+    <legend>Theme</legend>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="theme" value="auto" checked><span>Auto</span></label>
+      <label class="chip"><input type="radio" name="theme" value="light"><span>Light</span></label>
+      <label class="chip"><input type="radio" name="theme" value="dark"><span>Dark</span></label>
+      <label class="chip"><input type="radio" name="theme" value="contrast"><span>High contrast</span></label>
+      <label class="chip"><input type="radio" name="theme" value="tricolore"><span>Tricolore</span></label>
+      <label class="chip"><input type="radio" name="theme" value="cafe"><span>Café</span></label>
+      <label class="chip"><input type="radio" name="theme" value="midnight"><span>Midnight black</span></label>
+    </div>
+    <p class="hint">Auto follows your phone’s light or dark mode.</p>
+  </fieldset>
 
   <fieldset>
     <legend>Speaking speed</legend>
@@ -378,8 +411,9 @@ const SRok=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
 const micOK=document.featurePolicy?document.featurePolicy.allowsFeature('microphone'):window.self===window.top;
 const val=n=>document.querySelector(`input[name="${n}"]:checked`).value;
 function setVal(n,v){const el=document.querySelector(`input[name="${n}"][value="${v}"]`);if(el)el.checked=true}
-try{const s=JSON.parse(store.get('settings')||'{}');if(s.mode)setVal('mode',s.mode);if(s.len)setVal('len',s.len);if(s.speed)setVal('speed',s.speed);if(s.pause)setVal('pause',s.pause);if(s.style)setVal('style',s.style);if(s.nchoices)setVal('nchoices',s.nchoices)}catch(e){}
+try{const s=JSON.parse(store.get('settings')||'{}');if(s.mode)setVal('mode',s.mode);if(s.len)setVal('len',s.len);if(s.speed)setVal('speed',s.speed);if(s.pause)setVal('pause',s.pause);if(s.style)setVal('style',s.style);if(s.nchoices)setVal('nchoices',s.nchoices);if(s.theme)setVal('theme',s.theme)}catch(e){}
 function onSettings(){
+  const cl=document.documentElement.classList;[...cl].filter(c=>c.startsWith('t-')).forEach(c=>cl.remove(c));if(val('theme')!=='auto')cl.add('t-'+val('theme'));
   const st=val('style'),wantMic=st==='speak'&&SRok&&micOK;
   $('micOpts').hidden=!wantMic;if(!wantMic)$('micStatus').textContent='';
   $('chooseOpts').hidden=st!=='choose';
@@ -388,7 +422,7 @@ function onSettings(){
   $('hint').textContent=MODES[val('mode')].hint;
   const b=+store.get(`best:${val('mode')}:${val('len')}`)||0;
   $('bestSetup').textContent=b?`Your best here: ${grp(b)} pts`:'';
-  store.set('settings',JSON.stringify({mode:val('mode'),len:val('len'),speed:val('speed'),pause:val('pause'),style:val('style'),nchoices:val('nchoices')}));
+  store.set('settings',JSON.stringify({mode:val('mode'),len:val('len'),speed:val('speed'),pause:val('pause'),style:val('style'),nchoices:val('nchoices'),theme:val('theme')}));
 }
 document.querySelectorAll('#setup input[type=radio],#prefs input[type=radio]').forEach(r=>r.addEventListener('change',onSettings));
 onSettings();
