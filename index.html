@@ -53,6 +53,7 @@ select{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(-
 .note{color:var(--muted);font-size:.95rem}
 .warn{background:var(--surface);border-left:4px solid var(--bad);padding:10px 14px;border-radius:6px;margin:0 0 20px}
 .warn.speechMsg{margin:10px 0 0}
+.vout{white-space:pre-wrap;overflow-wrap:anywhere;font:.95rem/1.5 Barlow,system-ui,sans-serif;background:var(--surface);border-radius:8px;padding:10px 14px;margin:10px 0 0}
 
 /* play */
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
@@ -205,6 +206,13 @@ select{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(-
       <button class="btn" id="test" type="button">Test voice</button>
     </div>
     <p class="warn speechMsg" role="status" hidden></p>
+  </fieldset>
+
+  <fieldset>
+    <legend>Voice check</legend>
+    <p class="hint" style="margin:0 0 10px">No sound? This plays “un, deux, trois” several ways and shows which ones work. Take a screenshot of the result.</p>
+    <button class="btn" id="vcheck" type="button">Run voice check</button>
+    <pre class="vout" id="vcheckOut" role="status" hidden></pre>
   </fieldset>
 
   <button class="btn primary big" id="prefsDone" type="button">Done</button>
@@ -433,6 +441,31 @@ function speak(text,done){
   },60);
 }
 $('test').addEventListener('click',()=>speak('quatre-vingt-dix-sept'));
+
+/* ---------- voice check: tries each way of asking for French and reports what the device did ---------- */
+$('vcheck').addEventListener('click',async()=>{
+  const b=$('vcheck'),out=$('vcheckOut'),all=SS?SS.getVoices():[],fr=all.filter(v=>/^fr/i.test(v.lang));
+  const lines=[`${(navigator.userAgent.match(/Chrome\/\d+/)||['Browser'])[0]}: ${all.length} voices, ${fr.length} French. Game voice: ${voice?voice.name:'default'}`];
+  fr.forEach(v=>lines.push(`• ${v.name} · ${v.lang} · ${v.localService?'on device':'online'}${v.default?' · default':''}`));
+  const show=()=>{out.textContent=lines.join('\n');out.hidden=false};
+  if(!SS){lines.push('This browser has no speech.');return show()}
+  const tests=[['No language set',null,null],['Language fr-FR','fr-FR',null],['Language fr','fr',null]];
+  fr.slice(0,4).forEach(v=>{tests.push([`${v.name} (${v.lang})`,v.lang,v]);if(v.lang!=='fr-FR')tests.push([`${v.name} (fr-FR)`,'fr-FR',v])});
+  b.disabled=true;b.textContent='Checking…';sid++;show();
+  for(const [i,[label,lang,v]] of tests.entries()){
+    const res=await new Promise(done=>{
+      SS.cancel();
+      const u=new SpeechSynthesisUtterance('un, deux, trois');if(lang)u.lang=lang;if(v)u.voice=v;
+      let started=false;const t=setTimeout(()=>done(started?'started, never finished':'no sound started'),6000);
+      u.onstart=()=>{started=true};
+      u.onend=()=>{clearTimeout(t);done(started?'worked':'finished (no start event)')};
+      u.onerror=e=>{clearTimeout(t);done(`failed (${e.error})`)};
+      setTimeout(()=>SS.speak(u),60);
+    });
+    lines.push(`${i+1}. ${label}: ${res}`);show();
+  }
+  b.disabled=false;b.textContent='Run voice check';
+});
 
 /* ---------- game ---------- */
 let S=null;
