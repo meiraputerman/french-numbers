@@ -386,7 +386,7 @@ const MODES={
   tricky:{label:'60 to 99',hint:'Soixante-dix, quatre-vingts, quatre-vingt-dix and the rest.',make:()=>intItem(R(60,99))},
   hundreds:{label:'Hundreds',hint:'100 to 999, often ending in the 70s, 80s or 90s.',make:()=>{const h=R(1,9),r=Math.random()<.6?R(70,99):R(0,99);return intItem(h*100+r)}},
   thousands:{label:'Thousands',hint:'1 000 to 999 999.',make:()=>{const d=R(4,6);return intItem(R(10**(d-1),10**d-1))}},
-  years:{label:'Years',hint:'You’ll hear “en mille six cent quatre-vingt-cinq”. Type 1685.',make:()=>{const y=Math.random()<.85?R(1500,2099):R(1000,1499);return intItem(y,'en '+fr(y),{fmt:String,min:1000,max:2099})}},
+  years:{label:'Years',hint:'You’ll hear “mille six cent quatre-vingt-cinq”. Type 1685.',make:()=>{const y=Math.random()<.85?R(1500,2099):R(1000,1499);return intItem(y,null,{fmt:String,min:1000,max:2099})}},
   dates:{label:'Full dates',hint:'Day, month and year. Type 14/7/1789 or 14 juillet 1789.',input:'text',make:()=>{
     const y=R(1600,2030),m=R(1,12),d=R(1,[31,28,31,30,31,30,31,31,30,31,30,31][m-1]);
     const w='le '+(d===1?'premier':fr(d))+' '+MONTHS[m-1]+' '+fr(y);
@@ -500,7 +500,7 @@ const I18N={en:{
   m_tricky:'60 עד 99',h_tricky:'soixante-dix, quatre-vingts, quatre-vingt-dix וכל השאר.',
   m_hundreds:'מאות',h_hundreds:'100 עד 999, ולרוב עם סיום בין 70 ל-99.',
   m_thousands:'אלפים',h_thousands:'1,000 עד 999,999.',
-  m_years:'שנים',h_years:'תשמעו "en mille six cent quatre-vingt-cinq". הקלידו 1685.',
+  m_years:'שנים',h_years:'תשמעו "mille six cent quatre-vingt-cinq". הקלידו 1685.',
   m_dates:'תאריכים מלאים',h_dates:'יום, חודש ושנה. הקלידו 14/7/1789, או ⁦14 juillet 1789⁩, או 14 יולי 1789.',
   m_prices:'מחירים',h_prices:'יורו וסנטים. הקלידו 12,50 או 12.50.',
   m_phone:'מספרי טלפון',h_phone:'נאמרים בזוגות: zéro six, douze, trente-quatre… הקלידו את כל 10 הספרות.',
