@@ -2,7 +2,7 @@
 
 Practise French numbers by ear. The game says a number in French and you type it in digits as fast as you can. The quicker you answer, the more points you get.
 
-**Play:** https://YOUR-USERNAME.github.io/a-l-oreille/
+**Play:** https://meiraputerman.github.io/a-l-oreille/
 
 ## What you can practise
 
