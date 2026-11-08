@@ -417,6 +417,7 @@ loadVoices();
 setTimeout(()=>{if(!SS||!SS.getVoices().length)noSpeech(true)},2000);
 $('voice').addEventListener('change',e=>{voice=voices[+e.target.value]||null;if(voice)store.set('voice',voice.name);speakMsg('')});
 let keepMsg=false;
+const FORCE_STOP='On Android, force stop Chrome (phone Settings › Apps › Chrome › Force stop), then reopen it.';
 function speakMsg(t,keep){keepMsg=!!keep;document.querySelectorAll('.speechMsg').forEach(m=>{m.textContent=t;m.hidden=!t})}
 function speak(text,done){
   const id=++sid;
@@ -434,7 +435,7 @@ function speak(text,done){
       if(id!==sid||e.error==='interrupted'||e.error==='canceled')return fin();
       if(e.error==='not-allowed'){speakMsg('Chrome blocked the sound. Tap Hear again or Test voice to play it.');return fin()}
       if(voice){speakMsg(`The voice “${voice.name}” failed (${e.error}), so the phone’s default French voice is used instead.`,true);voice=null;return speak(text,done)}
-      speakMsg(`Speech failed (${e.error}). Pick another voice in Settings or check the phone’s text-to-speech settings.`);fin();
+      speakMsg(`Speech failed (${e.error}). ${FORCE_STOP} If that doesn’t help, pick another voice in Settings.`);fin();
     };
     to=setTimeout(()=>{if(id===sid&&!started)speakMsg('No sound started. Check the media volume, then tap Hear again.');fin()},1500+text.length*110/rate);
     SS.speak(u);
@@ -452,6 +453,7 @@ $('vcheck').addEventListener('click',async()=>{
   const tests=[['No language set',null,null],['Language fr-FR','fr-FR',null],['Language fr','fr',null]];
   fr.slice(0,4).forEach(v=>{tests.push([`${v.name} (${v.lang})`,v.lang,v]);if(v.lang!=='fr-FR')tests.push([`${v.name} (fr-FR)`,'fr-FR',v])});
   b.disabled=true;b.textContent='Checking…';sid++;show();
+  let anyOk=false;
   for(const [i,[label,lang,v]] of tests.entries()){
     const res=await new Promise(done=>{
       SS.cancel();
@@ -462,8 +464,10 @@ $('vcheck').addEventListener('click',async()=>{
       u.onerror=e=>{clearTimeout(t);done(`failed (${e.error})`)};
       setTimeout(()=>SS.speak(u),60);
     });
+    if(res==='worked')anyOk=true;
     lines.push(`${i+1}. ${label}: ${res}`);show();
   }
+  if(!anyOk){lines.push('Nothing worked. '+FORCE_STOP);show()}
   b.disabled=false;b.textContent='Run voice check';
 });
 
