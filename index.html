@@ -162,6 +162,7 @@ select{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(-
       <label class="chip"><input type="radio" name="style" value="type" checked><span data-t="sTyping">Typing it</span></label>
       <label class="chip"><input type="radio" name="style" value="choose"><span data-t="sChoices">Picking from choices</span></label>
       <label class="chip"><input type="radio" name="style" value="speak"><span data-t="sSpeak">Saying it out loud</span></label>
+      <label class="chip"><input type="radio" name="style" value="french"><span data-t="sFrench">Saying it in French</span></label>
     </div>
     <p class="hint" id="answerHint" aria-live="polite"></p>
     <div id="chooseOpts" hidden>
@@ -174,10 +175,12 @@ select{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(-
       </div>
     </div>
     <div id="micOpts" hidden>
+      <div id="sayLangOpts">
       <p class="note" id="sayLangLbl" style="margin:10px 0 8px" data-t="sayLang">Say the numbers in</p>
       <div class="chips" role="radiogroup" aria-labelledby="sayLangLbl">
         <label class="chip"><input type="radio" name="spoken" value="en" checked><span data-t="sayEn">English</span></label>
         <label class="chip"><input type="radio" name="spoken" value="he"><span data-t="sayHe">Hebrew</span></label>
+      </div>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn" id="micTest" type="button" data-t="micTestBtn">Test microphone</button>
@@ -436,6 +439,10 @@ const I18N={en:{
   ah_artifact:'Spoken answers don’t work when this page is opened as a Claude artifact, so you’ll type instead. To answer by voice, open it as a normal web page in Chrome.',
   ah_speak:'The mic turns on after each number. Say it in English, like “sixteen eighty-five” or “July fourteenth, seventeen eighty-nine”. You can still type if you prefer.',
   ah_speakHe:'The mic turns on after each number. Say it in Hebrew, like “אלף שש מאות שמונים וחמש” or “ארבעה עשר ביולי”. You can still type if you prefer.',
+  ah_french:'The number appears on screen. Say it in French when the mic turns on, like “soixante-dix-sept”. You can also write it in French words.',
+  note_french:'Say the number in French, or write it in French words.',
+  typeFr:'Write it in French',tryAgain:'Try again.',
+  micSayFr:'Say a number in French, like “soixante-douze”.',
   bestHere:b=>`Your best here: ${grp(b)} pts`,
   force:'On Android, force stop Chrome (phone Settings › Apps › Chrome › Force stop), then reopen it.',
   notAllowed:'Chrome blocked the sound. Tap Hear again or Test voice to play it.',
@@ -478,7 +485,7 @@ const I18N={en:{
   lede:'שמעו מספר בצרפתית והקלידו אותו בספרות מהר ככל האפשר. ככל שתענו מהר יותר, תקבלו יותר נקודות.',
   noSpeech:'<strong>פתחו את הדף ב-Chrome כדי לשמוע את המספרים.</strong> התצוגה הזו לא יכולה להשמיע דיבור, ולכן אי אפשר להתחיל כאן סבב. ב-Chrome, דרך ⋮ › "הוספה למסך הבית" אפשר ליצור קיצור דרך.',
   noVoice:'לא נמצא במכשיר קול צרפתי, ולכן ייתכן שהמספרים יוקראו במבטא אנגלי. באנדרואיד: חפשו בהגדרות "טקסט לדיבור", הקישו על גלגל השיניים שליד המנוע ובחרו "התקנת נתוני קול" › צרפתית. באייפון: הגדרות › נגישות › תוכן מדובר › קולות › צרפתית.',
-  practise:'מה לתרגל',answerBy:'איך עונים',sTyping:'הקלדה',sChoices:'בחירה מתוך אפשרויות',sSpeak:'אמירה בקול',
+  practise:'מה לתרגל',answerBy:'איך עונים',sTyping:'הקלדה',sChoices:'בחירה מתוך אפשרויות',sSpeak:'אמירה בקול',sFrench:'אמירה בצרפתית',
   sayLang:'שפת הדיבור',sayEn:'אנגלית',sayHe:'עברית',
   nchoices:'כמה אפשרויות, כולל התשובה הנכונה',micTestBtn:'בדיקת מיקרופון',
   roundLen:'אורך הסבב',len10:'10 מספרים',len20:'20 מספרים',len30:'30 מספרים',start:'התחלת סבב',
@@ -511,6 +518,10 @@ const I18N={en:{
   ah_artifact:'תשובות בקול לא עובדות כשהדף פתוח כ-Artifact של Claude, אז תקלידו במקום. כדי לענות בקול, פתחו אותו כדף אינטרנט רגיל ב-Chrome.',
   ah_speak:'המיקרופון נדלק אחרי כל מספר. אמרו אותו באנגלית, למשל "sixteen eighty-five" או "July fourteenth, seventeen eighty-nine". אפשר גם להקליד.',
   ah_speakHe:'המיקרופון נדלק אחרי כל מספר. אמרו אותו בעברית, למשל "אלף שש מאות שמונים וחמש" או "ארבעה עשר ביולי אלף שבע מאות שמונים ותשע". אפשר גם להקליד.',
+  ah_french:'המספר מופיע על המסך. אמרו אותו בצרפתית כשהמיקרופון נדלק, למשל "soixante-dix-sept". אפשר גם לכתוב אותו במילים בצרפתית.',
+  note_french:'אמרו את המספר בצרפתית, או כתבו אותו במילים בצרפתית.',
+  typeFr:'כתבו בצרפתית',tryAgain:'נסו שוב.',
+  micSayFr:'אמרו מספר בצרפתית, למשל "soixante-douze".',
   bestHere:b=>`השיא שלכם כאן: ${grp(b)} נק׳`,
   force:'באנדרואיד, עצרו את Chrome בכפייה (בהגדרות הטלפון: אפליקציות › Chrome › עצירה בכפייה) ופתחו אותו מחדש.',
   notAllowed:'Chrome חסם את הצליל. הקישו על "השמעה חוזרת" או "בדיקת קול" כדי להשמיע.',
@@ -565,11 +576,12 @@ try{const s=JSON.parse(store.get('settings')||'{}');setVal('lang',s.lang||(/^(he
 function onSettings(){
   const cl=document.documentElement.classList;[...cl].filter(c=>c.startsWith('t-')).forEach(c=>cl.remove(c));if(val('theme')!=='auto')cl.add('t-'+val('theme'));
   applyLang();
-  const st=val('style'),wantMic=st==='speak'&&SRok&&micOK;
+  const st=val('style'),wantMic=(st==='speak'||st==='french')&&SRok&&micOK;
   $('micOpts').hidden=!wantMic;if(!wantMic)$('micStatus').textContent='';
+  $('sayLangOpts').hidden=st==='french';
   $('chooseOpts').hidden=st!=='choose';
   if(wantMic&&!permChecked){permChecked=true;micPermCheck()}
-  $('answerHint').textContent=tr(st==='type'?'ah_type':st==='choose'?'ah_choose':!SRok?'ah_nosr':!micOK?'ah_artifact':val('spoken')==='he'?'ah_speakHe':'ah_speak');
+  $('answerHint').textContent=tr(st==='type'?'ah_type':st==='choose'?'ah_choose':!SRok?'ah_nosr':!micOK?'ah_artifact':st==='french'?'ah_french':val('spoken')==='he'?'ah_speakHe':'ah_speak');
   $('hint').textContent=tr('h_'+val('mode'));
   const b=+store.get(`best:${val('mode')}:${val('len')}`)||0;
   $('bestSetup').textContent=b?tr('bestHere',b):'';
@@ -662,9 +674,10 @@ function startRound(items,mode){
   S={mode,items,i:0,score:0,streak:0,results:[],phase:'idle'};
   $('track').innerHTML=items.map(()=>'<div class="seg"></div>').join('');
   $('score').textContent='0';
-  $('mic').hidden=!speakMode();
+  $('mic').hidden=!speakMode();$('replay').hidden=frMode();
   $('form').hidden=chooseMode();$('choices').hidden=!chooseMode();
-  $('playNote').textContent=chooseMode()?tr('note_choose',val('nchoices')):tr(!speakMode()?'note_type':val('spoken')==='he'?'note_speakHe':'note_speak');
+  input.placeholder=tr(frMode()?'typeFr':'typeNum');
+  $('playNote').textContent=chooseMode()?tr('note_choose',val('nchoices')):tr(frMode()?'note_french':!speakMode()?'note_type':val('spoken')==='he'?'note_speakHe':'note_speak');
   $('micMsg').textContent='';
   show('play');next();
 }
@@ -677,16 +690,18 @@ function next(){
   if(S.i>=S.items.length)return finish();
   const it=S.items[S.i];
   S.replays=0;S.tStart=null;S.missed=false;S.wrongPicks=[];S.phase='answer';
-  plaque.className='plaque';num.textContent='?';
+  plaque.className='plaque';num.textContent=frMode()?it.display:'?';
   $('fb').innerHTML='';$('clock').textContent='0.0 '+tr('sec');
   if(chooseMode())renderChoices(it);
-  input.value='';input.inputMode=it.input||MODES[S.mode]?.input||'numeric';
+  input.value='';input.inputMode=frMode()?'text':it.input||MODES[S.mode]?.input||'numeric';
   $('prog').textContent=`${S.i+1} / ${S.items.length}`;
   paintTrack();focusInput();
   sayCurrent();
 }
 function sayCurrent(){
   stopListening();
+  // Saying it in French: the number is on the plaque, so nothing is spoken; stop any leftover speech so the mic doesn't hear it
+  if(frMode()){sid++;SS&&SS.cancel();S.tStart=performance.now();tick();if(speakMode())listen();return}
   plaque.classList.add('listening');
   speak(S.items[S.i].say,()=>{
     plaque.classList.remove('listening');
@@ -699,7 +714,7 @@ function tick(){
   $('clock').textContent=((performance.now()-S.tStart)/1000).toFixed(1)+' '+tr('sec');
   requestAnimationFrame(tick);
 }
-function replay(){if(S&&S.phase==='answer'){S.replays++;sayCurrent();focusInput()}}
+function replay(){if(S&&S.phase==='answer'&&!frMode()){S.replays++;sayCurrent();focusInput()}}
 function renderChoices(it){
   const k=+val('nchoices'),opts=[];
   for(const x of it.alts()){if(opts.length>=k-1)break;if(x!==it.display&&!opts.includes(x))opts.push(x)}
@@ -713,7 +728,8 @@ function submit(skip,alts,choice){
   if(!skip&&!v)return;
   const it=S.items[S.i];
   const t=S.tStart?(performance.now()-S.tStart)/1000:0;
-  const ok=!skip&&(choice!=null?choice===it.display:(alts||[v]).some(a=>candidates(a).some(c=>it.check(c))));
+  // in French mode a typed answer must be words: digits are dropped, since the number is already on screen
+  const ok=!skip&&(choice!=null?choice===it.display:(alts||[frMode()?v.replace(/\d/g,''):v]).some(a=>candidates(a).some(c=>it.check(c))));
   if(!skip&&!ok){
     S.missed=true;S.streak=0;S.wrongPicks.push(v);
     const btns=[...$('choices').children];
@@ -721,6 +737,11 @@ function submit(skip,alts,choice){
     plaque.className='plaque bad';
     $('fb').innerHTML=`<p class="verdict bad">${tr(chooseMode()?'retryPick':'retryType')}</p>`;
     if(!chooseMode())input.value='';
+    if(frMode()){  // nothing to replay: show what was heard and reopen the mic
+      $('fb').innerHTML=`<p class="verdict bad">${tr('notQuite')}. ${tr(alts?'youSaid':'youTyped',v.replace(/</g,'&lt;'))}. ${tr('tryAgain')}</p>`;
+      setTimeout(()=>{if(S&&S.phase==='answer'&&S.items[S.i]===it&&speakMode())listen()},400);  // let the last recognition release the mic first
+      focusInput();return;
+    }
     plaque.classList.add('listening');
     speak(it.say,()=>{
       plaque.classList.remove('listening');
@@ -785,9 +806,10 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('play').hidden)l
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let rec=null;
 const chooseMode=()=>val('style')==='choose';
-const speakMode=()=>val('style')==='speak'&&!!SR&&micOK;
+const frMode=()=>val('style')==='french';
+const speakMode=()=>(val('style')==='speak'||frMode())&&!!SR&&micOK;
 function focusInput(){if(!speakMode()&&!chooseMode())input.focus({preventScroll:true})}
-const recLang=()=>val('spoken')==='he'?'he-IL':'en-US';
+const recLang=()=>frMode()?'fr-FR':val('spoken')==='he'?'he-IL':'en-US';
 function setMic(on){const b=$('mic');b.classList.toggle('on',on);b.textContent=tr(on?'listening':'tapSpeak')}
 function stopListening(){if(rec){const r=rec;rec=null;try{r.abort()}catch(e){}}setMic(false)}
 function listen(){
@@ -826,7 +848,7 @@ $('micTest').addEventListener('click',()=>{
   if(testRec){try{testRec.abort()}catch(e){}testRec=null}
   const r=new Rec();testRec=r;r.lang=recLang();r.interimResults=true;r.continuous=false;
   let heard='';
-  r.onstart=()=>{b.textContent=tr('listening');b.classList.add('on');m.textContent=tr(val('spoken')==='he'?'micSayHe':'micSay')};
+  r.onstart=()=>{b.textContent=tr('listening');b.classList.add('on');m.textContent=tr(frMode()?'micSayFr':val('spoken')==='he'?'micSayHe':'micSay')};
   r.onresult=e=>{heard='';for(const res of e.results)heard+=res[0].transcript;m.textContent=tr('micHearing',heard)};
   r.onerror=e=>{
     m.textContent=e.error==='not-allowed'||e.error==='service-not-allowed'?tr('micBlocked'):e.error==='no-speech'?tr('micNoSpeech'):e.error==='audio-capture'?tr('micNoDevice'):tr('micFail',e.error);
@@ -883,8 +905,24 @@ function heToEn(text){
   }
   return out.join(' ');
 }
+/* French number words, the same way: "mille neuf cent quatre-vingt-dix-neuf" → "one thousand nine hundred ninety nine" */
+const FR_NUM={zero:'zero',un:'one',une:'one',deux:'two',trois:'three',quatre:'four',cinq:'five',six:'six',sept:'seven',huit:'eight',neuf:'nine',dix:'ten',onze:'eleven',douze:'twelve',treize:'thirteen',quatorze:'fourteen',quinze:'fifteen',seize:'sixteen',dixsept:'seventeen',dixhuit:'eighteen',dixneuf:'nineteen',vingt:'twenty',vingts:'twenty',trente:'thirty',quarante:'forty',cinquante:'fifty',soixante:'sixty',quatrevingt:'eighty',million:'million',millions:'million',premier:'first'};
+const FR_TEEN={dix:'',onze:'un',douze:'deux',treize:'trois',quatorze:'quatre',quinze:'cinq',seize:'six',dixsept:'sept',dixhuit:'huit',dixneuf:'neuf'};
+function frToEn(text){
+  const s=plain(text).replace(/-/g,' ').replace(/\bquatre vingts?\b/g,'quatrevingt').replace(/\bdix (sept|huit|neuf)\b/g,'dix$1')
+    .replace(/\b(soixante|quatrevingt)( et)? (dix|onze|douze|treize|quatorze|quinze|seize|dixsept|dixhuit|dixneuf)\b/g,(m,t,e,x)=>(t==='soixante'?'seventy ':'ninety ')+FR_TEEN[x]);  // soixante-douze → seventy deux
+  const out=[];
+  for(const tok of s.split(/\s+/).filter(Boolean)){
+    const t=tok.replace(/[.,!?;:]+$/,''),p=out[out.length-1],afterNum=p in EN&&p!=='zero';
+    if(t==='et')continue;
+    if(t==='cent'||t==='cents'){afterNum?out.push('hundred'):out.push('one','hundred');continue}  // six cents → six hundred, cent → one hundred
+    if(t==='mille'){afterNum||p==='hundred'?out.push('thousand'):out.push('one','thousand');continue}
+    out.push(FR_NUM[t]||tok);
+  }
+  return out.join(' ');
+}
 function candidates(raw){
-  const out=wordsToDigits(heToEn(raw));
+  const out=wordsToDigits(frMode()?frToEn(raw):heToEn(raw));
   const A=out.map(x=>typeof x==='string'?x:x.join('')).join(' ');
   const B=out.map(x=>{if(typeof x==='string')return x;const r=x.filter(p=>p!=='.');return r.length===2?r[0]+'.'+r[1].padStart(2,'0'):x.join('')}).join(' ');
   const nums=A.match(/\d+(\.\d+)?/g)||[];
