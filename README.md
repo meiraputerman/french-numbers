@@ -19,9 +19,9 @@ Practise French numbers by ear. The game says a number in French and you type it
 
 ## How to play
 
-- Answer by typing, by picking from 3 to 6 choices, or by saying the number out loud in English or Hebrew.
+- Answer by typing, by picking from 3 to 6 choices, or by saying the number out loud in English, Hebrew or Ukrainian.
 - Or turn it around with "Saying it in French": the number is shown and you say it in French (or write it in French words when there's no microphone).
-- The game can be shown in English or Hebrew: Settings › Language · שפה.
+- The game can be shown in English, Hebrew or Ukrainian: Settings › Language · שפה · Мова.
 - A wrong answer doesn't give the number away: you hear it again and try another answer, but that number scores no points.
 - Skip shows the answer and moves on.
 - A fast first-try answer scores up to 100 points, less for each second you take and each time you tap Hear again, plus a streak bonus of up to 50.

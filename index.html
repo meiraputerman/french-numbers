@@ -180,6 +180,7 @@ select{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(-
       <div class="chips" role="radiogroup" aria-labelledby="sayLangLbl">
         <label class="chip"><input type="radio" name="spoken" value="en" checked><span data-t="sayEn">English</span></label>
         <label class="chip"><input type="radio" name="spoken" value="he"><span data-t="sayHe">Hebrew</span></label>
+        <label class="chip"><input type="radio" name="spoken" value="uk"><span data-t="sayUk">Ukrainian</span></label>
       </div>
       </div>
       <div class="row" style="margin-top:10px">
@@ -210,10 +211,11 @@ select{font:inherit;padding:8px 10px;border-radius:10px;border:1.5px solid var(-
   <p class="lede" data-t="prefsLede">These apply to every round.</p>
 
   <fieldset>
-    <legend>Language · שפה</legend>
+    <legend>Language · שפה · Мова</legend>
     <div class="chips">
       <label class="chip"><input type="radio" name="lang" value="en" checked><span lang="en">English</span></label>
       <label class="chip"><input type="radio" name="lang" value="he"><span lang="he">עברית</span></label>
+      <label class="chip"><input type="radio" name="lang" value="uk"><span lang="uk">Українська</span></label>
     </div>
   </fieldset>
 
@@ -321,6 +323,7 @@ const U=['zéro','un','deux','trois','quatre','cinq','six','sept','huit','neuf',
 const MONTHS_EN=['january','february','march','april','may','june','july','august','september','october','november','december'];
 const MONTHS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 const MONTHS_HE=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+const MONTHS_UK=['січ','лют','берез','квіт','трав','черв','лип','серп','верес','жовт','листопад','груд'];  // stems: match both липень and липня
 function u100(n,fin=true){
   if(n<17)return U[n];
   if(n<20)return 'dix-'+U[n-10];
@@ -401,7 +404,7 @@ const MODES={
       return shuffle(a).concat(poolFor(y,1000,2099).map(x=>fd(d,m,x)));};
     return{alts,display:fd(d,m,y),say:w,words:w,check:s=>{
       let g=(s.match(/\d+/g)||[]).map(Number);
-      if(g.length===2){const p=plain(s).replace('מרס','מרץ');let mi=MONTHS.findIndex(x=>p.includes(plain(x)));if(mi<0)mi=MONTHS_EN.findIndex(x=>p.includes(x));if(mi<0)mi=MONTHS_HE.findIndex(x=>p.includes(x));if(mi>=0)g=[g[0],mi+1,g[1]];}
+      if(g.length===2){const p=plain(s).replace('מרס','מרץ');let mi=MONTHS.findIndex(x=>p.includes(plain(x)));if(mi<0)mi=MONTHS_EN.findIndex(x=>p.includes(x));if(mi<0)mi=MONTHS_HE.findIndex(x=>p.includes(x));if(mi<0)mi=MONTHS_UK.findIndex(x=>p.includes(x));if(mi>=0)g=[g[0],mi+1,g[1]];}
       return g.length===3&&g[0]===d&&g[1]===m&&g[2]===y;}};
   }},
   prices:{label:'Prices',hint:'Euros and cents. Type 12,50 or 12.50.',input:'decimal',make:()=>{
@@ -430,6 +433,7 @@ const SRok=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
 const micOK=document.featurePolicy?document.featurePolicy.allowsFeature('microphone'):window.self===window.top;
 const val=n=>document.querySelector(`input[name="${n}"]:checked`).value;
 function setVal(n,v){const el=document.querySelector(`input[name="${n}"][value="${v}"]`);if(el)el.checked=true}
+const spk=k=>k+({he:'He',uk:'Uk'}[val('spoken')]||'');  // text key for the spoken-answer language: ah_speak, ah_speakHe, ah_speakUk
 
 /* ---------- languages: English text stays in the HTML (data-t, data-ta) and in MODES; Hebrew, and messages built in code, live here ---------- */
 const I18N={en:{
@@ -439,6 +443,9 @@ const I18N={en:{
   ah_artifact:'Spoken answers don’t work when this page is opened as a Claude artifact, so you’ll type instead. To answer by voice, open it as a normal web page in Chrome.',
   ah_speak:'The mic turns on after each number. Say it in English, like “sixteen eighty-five” or “July fourteenth, seventeen eighty-nine”. You can still type if you prefer.',
   ah_speakHe:'The mic turns on after each number. Say it in Hebrew, like “אלף שש מאות שמונים וחמש” or “ארבעה עשר ביולי”. You can still type if you prefer.',
+  ah_speakUk:'The mic turns on after each number. Say it in Ukrainian, like “тисяча шістсот вісімдесят п’ять” or “чотирнадцяте липня”. You can still type if you prefer.',
+  note_speakUk:'Say the number in Ukrainian when the voice stops. You can still type if you prefer.',
+  micSayUk:'Say a number in Ukrainian, like “сімдесят два”.',
   ah_french:'The number appears on screen. Say it in French when the mic turns on, like “soixante-dix-sept”. You can also write it in French words.',
   note_french:'Say the number in French, or write it in French words.',
   typeFr:'Write it in French',tryAgain:'Try again.',
@@ -486,7 +493,7 @@ const I18N={en:{
   noSpeech:'<strong>פתחו את הדף ב-Chrome כדי לשמוע את המספרים.</strong> התצוגה הזו לא יכולה להשמיע דיבור, ולכן אי אפשר להתחיל כאן סבב. ב-Chrome, דרך ⋮ › "הוספה למסך הבית" אפשר ליצור קיצור דרך.',
   noVoice:'לא נמצא במכשיר קול צרפתי, ולכן ייתכן שהמספרים יוקראו במבטא אנגלי. באנדרואיד: חפשו בהגדרות "טקסט לדיבור", הקישו על גלגל השיניים שליד המנוע ובחרו "התקנת נתוני קול" › צרפתית. באייפון: הגדרות › נגישות › תוכן מדובר › קולות › צרפתית.',
   practise:'מה לתרגל',answerBy:'איך עונים',sTyping:'הקלדה',sChoices:'בחירה מתוך אפשרויות',sSpeak:'אמירה בקול',sFrench:'אמירה בצרפתית',
-  sayLang:'שפת הדיבור',sayEn:'אנגלית',sayHe:'עברית',
+  sayLang:'שפת הדיבור',sayEn:'אנגלית',sayHe:'עברית',sayUk:'אוקראינית',
   nchoices:'כמה אפשרויות, כולל התשובה הנכונה',micTestBtn:'בדיקת מיקרופון',
   roundLen:'אורך הסבב',len10:'10 מספרים',len20:'20 מספרים',len30:'30 מספרים',start:'התחלת סבב',
   prefsLede:'ההגדרות חלות על כל הסבבים.',
@@ -518,6 +525,9 @@ const I18N={en:{
   ah_artifact:'תשובות בקול לא עובדות כשהדף פתוח כ-Artifact של Claude, אז תקלידו במקום. כדי לענות בקול, פתחו אותו כדף אינטרנט רגיל ב-Chrome.',
   ah_speak:'המיקרופון נדלק אחרי כל מספר. אמרו אותו באנגלית, למשל "sixteen eighty-five" או "July fourteenth, seventeen eighty-nine". אפשר גם להקליד.',
   ah_speakHe:'המיקרופון נדלק אחרי כל מספר. אמרו אותו בעברית, למשל "אלף שש מאות שמונים וחמש" או "ארבעה עשר ביולי אלף שבע מאות שמונים ותשע". אפשר גם להקליד.',
+  ah_speakUk:'המיקרופון נדלק אחרי כל מספר. אמרו אותו באוקראינית, למשל "тисяча шістсот вісімдесят п’ять" או "чотирнадцяте липня". אפשר גם להקליד.',
+  note_speakUk:'אמרו את המספר באוקראינית כשהקול נעצר. אפשר גם להקליד.',
+  micSayUk:'אמרו מספר באוקראינית, למשל "сімдесят два".',
   ah_french:'המספר מופיע על המסך. אמרו אותו בצרפתית כשהמיקרופון נדלק, למשל "soixante-dix-sept". אפשר גם לכתוב אותו במילים בצרפתית.',
   note_french:'אמרו את המספר בצרפתית, או כתבו אותו במילים בצרפתית.',
   typeFr:'כתבו בצרפתית',tryAgain:'נסו שוב.',
@@ -558,6 +568,88 @@ const I18N={en:{
   newBest:(m,b)=>`שיא חדש ב"${m}"! השיא הקודם: ${grp(b)} נק׳.`,
   firstBest:m=>`התוצאה הראשונה ב"${m}" נשמרה.`,
   yourBest:(m,b)=>`השיא שלכם ב"${m}": ${grp(b)} נק׳.`
+},uk:{
+  title:'À l’oreille: французькі числа на слух',
+  settings:'Налаштування',
+  lede:'Послухайте число французькою і введіть його цифрами якомога швидше. Що швидше ви відповідаєте, то більше балів отримуєте.',
+  noSpeech:'<strong>Відкрийте цю сторінку в Chrome, щоб чути числа.</strong> Тут не можна відтворити мовлення, тому раунд не почнеться. У Chrome через ⋮ › «Додати на головний екран» можна створити ярлик.',
+  noVoice:'На цьому пристрої не знайдено французького голосу, тому числа можуть звучати з англійським акцентом. На Android: Налаштування › Загальне керування › Синтез мовлення, торкніться шестірні біля рушія, потім «Установити голосові дані» › французька. На iPhone: Параметри › Доступність › Озвучення вмісту › Голоси › Французька.',
+  practise:'Що тренувати',answerBy:'Як відповідати',sTyping:'Ввести',sChoices:'Вибрати з варіантів',sSpeak:'Сказати вголос',sFrench:'Сказати французькою',
+  sayLang:'Якою мовою називати числа',sayEn:'Англійська',sayHe:'Іврит',sayUk:'Українська',
+  nchoices:'Скільки варіантів, разом із правильним',micTestBtn:'Перевірити мікрофон',
+  roundLen:'Довжина раунду',len10:'10 чисел',len20:'20 чисел',len30:'30 чисел',start:'Почати раунд',
+  prefsLede:'Ці налаштування діють для всіх раундів.',
+  theme:'Тема',thAuto:'Авто',thLight:'Світла',thDark:'Темна',thContrast:'Висока контрастність',thTricolore:'Триколор',thCafe:'Кав’ярня',thMidnight:'Опівнічна чорна',
+  themeHint:'«Авто» стежить за світлим або темним режимом телефона.',
+  speed:'Швидкість мовлення',spSlow:'Повільніше',spNormal:'Звичайна',spFast:'Швидка',
+  pauseLeg:'Пауза після правильної відповіді',pNone:'Без паузи',pShort:'Коротка',pMedium:'Середня',pLong:'Довга',
+  voiceLeg:'Голос',voiceSel:'Французький голос',testVoice:'Перевірити голос',
+  vcLeg:'Перевірка голосу',vcHint:'Немає звуку? Перевірка відтворює «un, deux, trois» кількома способами й показує, які з них працюють. Зробіть знімок екрана з результатом.',vcRun:'Запустити перевірку',
+  doneBtn:'Готово',leave:'Вийти з раунду',pts:'б.',endRound:'Завершити раунд',
+  typeNum:'Ваше число',yourAnswer:'Ваша відповідь',check:'Перевірити',
+  tapSpeak:'Говорити',hearAgain:'Ще раз',skip:'Пропустити',
+  note_type:'Enter перевіряє відповідь. Shift+Enter відтворює число ще раз.',
+  roundOver:'Раунд завершено',stPoints:'балів',stCorrect:'правильно',stAvg:'секунд у середньому',
+  again:'Грати ще',missesBtn:'Потренувати помилки',mainScreen:'Головний екран',
+  m_small:'Від 0 до 60',h_small:'Основа: від zéro до soixante.',
+  m_upto99:'Від 0 до 99',h_upto99:'Усі числа до ста, разом із 70–99.',
+  m_tricky:'Від 60 до 99',h_tricky:'Soixante-dix, quatre-vingts, quatre-vingt-dix та решта.',
+  m_hundreds:'Сотні',h_hundreds:'Від 100 до 999, часто із закінченням на 70–99.',
+  m_thousands:'Тисячі',h_thousands:'Від 1 000 до 999 999.',
+  m_years:'Роки',h_years:'Ви почуєте «mille six cent quatre-vingt-cinq». Введіть 1685.',
+  m_dates:'Повні дати',h_dates:'День, місяць і рік. Введіть 14/7/1789, 14 juillet 1789 або 14 липня 1789.',
+  m_prices:'Ціни',h_prices:'Євро й центи. Введіть 12,50 або 12.50.',
+  m_phone:'Номери телефонів',h_phone:'Звучать парами: zéro six, douze, trente-quatre… Введіть усі 10 цифр.',
+  m_mix:'Мікс',h_mix:'Усього потроху.',
+  ah_type:'Введіть число цифрами й торкніться «Перевірити».',
+  ah_choose:'Торкніться числа, яке почули.',
+  ah_nosr:'Цей браузер не може слухати відповіді, тож ви вводитимете їх. Щоб відповідати голосом, відкрийте сторінку в Chrome.',
+  ah_artifact:'Голосові відповіді не працюють, коли сторінку відкрито як артефакт Claude, тож ви вводитимете їх. Щоб відповідати голосом, відкрийте її як звичайну вебсторінку в Chrome.',
+  ah_speak:'Мікрофон вмикається після кожного числа. Назвіть його англійською, наприклад «sixteen eighty-five» або «July fourteenth, seventeen eighty-nine». Можна також ввести з клавіатури.',
+  ah_speakHe:'Мікрофон вмикається після кожного числа. Назвіть його івритом, наприклад «אלף שש מאות שמונים וחמש» або «ארבעה עשר ביולי». Можна також ввести з клавіатури.',
+  ah_speakUk:'Мікрофон вмикається після кожного числа. Назвіть його українською, наприклад «тисяча шістсот вісімдесят п’ять» або «чотирнадцяте липня тисяча сімсот вісімдесят дев’ятого року». Можна також ввести з клавіатури.',
+  note_speakUk:'Назвіть число українською, коли голос замовкне. Можна також ввести з клавіатури.',
+  micSayUk:'Назвіть число українською, наприклад «сімдесят два».',
+  ah_french:'Число з’являється на екрані. Коли ввімкнеться мікрофон, назвіть його французькою, наприклад «soixante-dix-sept». Можна також написати його французькими словами.',
+  note_french:'Назвіть число французькою або напишіть його французькими словами.',
+  typeFr:'Словами',tryAgain:'Спробуйте ще раз.',
+  micSayFr:'Назвіть число французькою, наприклад «soixante-douze».',
+  bestHere:b=>`Ваш рекорд тут: ${grp(b)} б.`,
+  force:'На Android примусово зупиніть Chrome (Налаштування телефона › Програми › Chrome › Примусово зупинити) і відкрийте його знову.',
+  notAllowed:'Chrome заблокував звук. Торкніться «Ще раз» або «Перевірити голос», щоб відтворити.',
+  voiceFailed:(n,e)=>`Голос «${n}» не спрацював (${e}), тому звучить стандартний французький голос телефона.`,
+  speechFailed:e=>`Мовлення не спрацювало (${e}). ${tr('force')} Якщо це не допоможе, виберіть інший голос у налаштуваннях.`,
+  noStart:'Звук не почався. Перевірте гучність медіа й торкніться «Ще раз».',
+  vcHead:(b,n,f,g)=>`${b}: голосів: ${n}, французьких: ${f}. Голос у грі: ${g}`,
+  vcDefault:'за замовчуванням',vcDevice:'на пристрої',vcOnline:'онлайн',vcNoSpeech:'У цьому браузері немає мовлення.',vcNoLang:'Без мови',vcLang:'Мова',vcChecking:'Перевіряємо…',
+  vcWorked:'працює',vcFailed:e=>`помилка (${e})`,vcNoStart:'звук не почався',vcNoEnd:'почався, але не завершився',vcEndOnly:'завершився (без події початку)',vcNothing:'Нічого не спрацювало.',
+  note_choose:n=>`Торкніться числа, яке почули. На клавіатурі натискайте від 1 до ${n}.`,
+  note_speak:'Назвіть число англійською, коли голос замовкне. Можна також ввести з клавіатури.',
+  note_speakHe:'Назвіть число івритом, коли голос замовкне. Можна також ввести з клавіатури.',
+  sec:'с',
+  retryPick:'Не зовсім. Послухайте ще раз і виберіть інше.',
+  retryType:'Не зовсім. Послухайте ще раз і спробуйте іншу відповідь.',
+  lateOk:'Саме так. Цього разу без балів, бо знадобилося кілька спроб.',
+  correct:(p,t,s)=>`Правильно, <bdi>+${p}</bdi> б. за ${t} с${s>1?` (серія: ${s})`:''}`,
+  skipped:'Пропущено',notQuite:'Не зовсім',itWas:d=>`Правильно: <bdi>${d}</bdi>`,
+  youTyped:v=>`Ви ввели «<bdi>${v}</bdi>»`,youPicked:v=>`Ви вибрали «<bdi>${v}</bdi>»`,youSaid:v=>`Ви сказали «<bdi>${v}</bdi>»`,
+  nextNum:'Наступне число',listening:'Слухаю…',
+  micBlockedPlay:'Доступ до мікрофона заблоковано. Дозвольте його для цієї сторінки в Chrome або виберіть «Ввести» на головному екрані.',
+  notCaught:'Не вдалося розчути. Торкніться «Говорити» і спробуйте ще раз.',
+  micBlocked:'Мікрофон заблоковано для цієї сторінки. У Chrome відкрийте ⋮ › Налаштування › Налаштування сайтів › Мікрофон, дозвольте цей сайт і знову торкніться «Перевірити мікрофон».',
+  micOn:'✓ Мікрофон увімкнено. Торкніться «Перевірити мікрофон», щоб переконатися, що він вас чує.',
+  micPrompt:'Торкніться «Перевірити мікрофон» і дозвольте доступ, коли Chrome запитає.',
+  micSay:'Назвіть число англійською, наприклад «seventy-two».',
+  micSayHe:'Назвіть число івритом, наприклад «שבעים ושתיים».',
+  micHearing:h=>`Чую: «${h}»`,
+  micNoSpeech:'Нічого не чути. Перевірте, чи ніщо не закриває мікрофон, і спробуйте ще раз.',
+  micNoDevice:'Мікрофон не знайдено. Перевірте, чи його не використовує інша програма, і спробуйте ще раз.',
+  micFail:e=>`Перевірка мікрофона не вдалася (${e}). Спробуйте ще раз.`,
+  micWorks:h=>`✓ Почуто «${h}». Мікрофон працює.`,
+  micStartFail:'Не вдалося ввімкнути мікрофон. Спробуйте ще раз.',
+  newBest:(m,b)=>`Новий рекорд у «${m}»! Попередній: ${grp(b)} б.`,
+  firstBest:m=>`Перший результат у «${m}» збережено.`,
+  yourBest:(m,b)=>`Ваш рекорд у «${m}»: ${grp(b)} б.`
 }};
 document.querySelectorAll('[data-t]').forEach(el=>I18N.en[el.dataset.t]=el.innerHTML);
 document.querySelectorAll('[data-ta]').forEach(el=>el.dataset.ta.split(',').forEach(p=>{const [a,k]=p.split(':');I18N.en[k]=el.getAttribute(a)}));
@@ -572,7 +664,7 @@ function applyLang(){
   document.querySelectorAll('input[name=mode]').forEach(r=>r.nextElementSibling.textContent=tr('m_'+r.value));
 }
 
-try{const s=JSON.parse(store.get('settings')||'{}');setVal('lang',s.lang||(/^(he|iw)/i.test(navigator.language)?'he':'en'));setVal('spoken',s.spoken||val('lang'));if(s.mode)setVal('mode',s.mode);if(s.len)setVal('len',s.len);if(s.speed)setVal('speed',s.speed);if(s.pause)setVal('pause',s.pause);if(s.style)setVal('style',s.style);if(s.nchoices)setVal('nchoices',s.nchoices);if(s.theme)setVal('theme',s.theme)}catch(e){}
+try{const s=JSON.parse(store.get('settings')||'{}');setVal('lang',s.lang||(/^(he|iw)/i.test(navigator.language)?'he':/^uk/i.test(navigator.language)?'uk':'en'));setVal('spoken',s.spoken||val('lang'));if(s.mode)setVal('mode',s.mode);if(s.len)setVal('len',s.len);if(s.speed)setVal('speed',s.speed);if(s.pause)setVal('pause',s.pause);if(s.style)setVal('style',s.style);if(s.nchoices)setVal('nchoices',s.nchoices);if(s.theme)setVal('theme',s.theme)}catch(e){}
 function onSettings(){
   const cl=document.documentElement.classList;[...cl].filter(c=>c.startsWith('t-')).forEach(c=>cl.remove(c));if(val('theme')!=='auto')cl.add('t-'+val('theme'));
   applyLang();
@@ -581,7 +673,7 @@ function onSettings(){
   $('sayLangOpts').hidden=st==='french';
   $('chooseOpts').hidden=st!=='choose';
   if(wantMic&&!permChecked){permChecked=true;micPermCheck()}
-  $('answerHint').textContent=tr(st==='type'?'ah_type':st==='choose'?'ah_choose':!SRok?'ah_nosr':!micOK?'ah_artifact':st==='french'?'ah_french':val('spoken')==='he'?'ah_speakHe':'ah_speak');
+  $('answerHint').textContent=tr(st==='type'?'ah_type':st==='choose'?'ah_choose':!SRok?'ah_nosr':!micOK?'ah_artifact':st==='french'?'ah_french':spk('ah_speak'));
   $('hint').textContent=tr('h_'+val('mode'));
   const b=+store.get(`best:${val('mode')}:${val('len')}`)||0;
   $('bestSetup').textContent=b?tr('bestHere',b):'';
@@ -677,7 +769,7 @@ function startRound(items,mode){
   $('mic').hidden=!speakMode();$('replay').hidden=frMode();
   $('form').hidden=chooseMode();$('choices').hidden=!chooseMode();
   input.placeholder=tr(frMode()?'typeFr':'typeNum');
-  $('playNote').textContent=chooseMode()?tr('note_choose',val('nchoices')):tr(frMode()?'note_french':!speakMode()?'note_type':val('spoken')==='he'?'note_speakHe':'note_speak');
+  $('playNote').textContent=chooseMode()?tr('note_choose',val('nchoices')):tr(frMode()?'note_french':!speakMode()?'note_type':spk('note_speak'));
   $('micMsg').textContent='';
   show('play');next();
 }
@@ -809,7 +901,7 @@ const chooseMode=()=>val('style')==='choose';
 const frMode=()=>val('style')==='french';
 const speakMode=()=>(val('style')==='speak'||frMode())&&!!SR&&micOK;
 function focusInput(){if(!speakMode()&&!chooseMode())input.focus({preventScroll:true})}
-const recLang=()=>frMode()?'fr-FR':val('spoken')==='he'?'he-IL':'en-US';
+const recLang=()=>frMode()?'fr-FR':{he:'he-IL',uk:'uk-UA'}[val('spoken')]||'en-US';
 function setMic(on){const b=$('mic');b.classList.toggle('on',on);b.textContent=tr(on?'listening':'tapSpeak')}
 function stopListening(){if(rec){const r=rec;rec=null;try{r.abort()}catch(e){}}setMic(false)}
 function listen(){
@@ -848,7 +940,7 @@ $('micTest').addEventListener('click',()=>{
   if(testRec){try{testRec.abort()}catch(e){}testRec=null}
   const r=new Rec();testRec=r;r.lang=recLang();r.interimResults=true;r.continuous=false;
   let heard='';
-  r.onstart=()=>{b.textContent=tr('listening');b.classList.add('on');m.textContent=tr(frMode()?'micSayFr':val('spoken')==='he'?'micSayHe':'micSay')};
+  r.onstart=()=>{b.textContent=tr('listening');b.classList.add('on');m.textContent=tr(frMode()?'micSayFr':spk('micSay'))};
   r.onresult=e=>{heard='';for(const res of e.results)heard+=res[0].transcript;m.textContent=tr('micHearing',heard)};
   r.onerror=e=>{
     m.textContent=e.error==='not-allowed'||e.error==='service-not-allowed'?tr('micBlocked'):e.error==='no-speech'?tr('micNoSpeech'):e.error==='audio-capture'?tr('micNoDevice'):tr('micFail',e.error);
@@ -921,8 +1013,23 @@ function frToEn(text){
   }
   return out.join(' ');
 }
+/* Ukrainian number words, the same way: "тисяча сімсот вісімдесят дев'ятого" → "one thousand seven hundred eighty nine".
+   Ordinals (dates: "чотирнадцяте липня", "...дев'ятого року") read as plain numbers; the month or "року" after them ends the number. Apostrophes are dropped from the keys. */
+const UK_NUM={нуль:'zero',один:'one',одна:'one',одне:'one',одну:'one',два:'two',дві:'two',три:'three',чотири:'four',пять:'five',шість:'six',сім:'seven',вісім:'eight',девять:'nine',десять:'ten',одинадцять:'eleven',дванадцять:'twelve',тринадцять:'thirteen',чотирнадцять:'fourteen',пятнадцять:'fifteen',шістнадцять:'sixteen',сімнадцять:'seventeen',вісімнадцять:'eighteen',девятнадцять:'nineteen',двадцять:'twenty',тридцять:'thirty',сорок:'forty',пятдесят:'fifty',шістдесят:'sixty',сімдесят:'seventy',вісімдесят:'eighty',девяносто:'ninety',сто:'one hundred',двісті:'two hundred',триста:'three hundred',чотириста:'four hundred',пятсот:'five hundred',шістсот:'six hundred',сімсот:'seven hundred',вісімсот:'eight hundred',девятсот:'nine hundred'};
+const UK_ORD={перш:'one',друг:'two',трет:'three',четверт:'four',пят:'five',шост:'six',сьом:'seven',восьм:'eight',девят:'nine',десят:'ten',одинадцят:'eleven',дванадцят:'twelve',тринадцят:'thirteen',чотирнадцят:'fourteen',пятнадцят:'fifteen',шістнадцят:'sixteen',сімнадцят:'seventeen',вісімнадцят:'eighteen',девятнадцят:'nineteen',двадцят:'twenty',тридцят:'thirty',сороков:'forty',пятдесят:'fifty',шістдесят:'sixty',сімдесят:'seventy',вісімдесят:'eighty',девяност:'ninety',сот:'one hundred',двохсот:'two hundred',трьохсот:'three hundred',чотирьохсот:'four hundred',пятисот:'five hundred',шестисот:'six hundred',семисот:'seven hundred',сьомисот:'seven hundred',восьмисот:'eight hundred',девятисот:'nine hundred',тисячн:'one thousand',двохтисячн:'two thousand'};
+const UK_ORD_RE=new RegExp('^('+Object.keys(UK_ORD).join('|')+')(ий|ій|ого|ього|ому|ьому|е|є|а|я|ої|ьої|у|ю|им|ім|их|іх|і)$');
+function ukToEn(text){
+  const out=[];
+  for(const tok of text.replace(/-/g,' ').split(/\s+/).filter(Boolean)){
+    const t=tok.toLowerCase().replace(/[.,!?;:]+$/,'').replace(/['’ʼ`]/g,''),o=t.match(UK_ORD_RE),p=out[out.length-1];
+    let w=UK_NUM[t]||(o&&UK_ORD[o[1]]);
+    if(/^(тисяч[аі]?|мільйон(и|ів)?)$/.test(t))w=(p in EN||p==='hundred'?'':'one ')+(t[0]==='т'?'thousand':'million');  // дві тисячі → two thousand, тисяча → one thousand
+    if(w)out.push(...w.split(' '));else out.push(tok);
+  }
+  return out.join(' ');
+}
 function candidates(raw){
-  const out=wordsToDigits(frMode()?frToEn(raw):heToEn(raw));
+  const out=wordsToDigits(frMode()?frToEn(raw):heToEn(ukToEn(raw)));
   const A=out.map(x=>typeof x==='string'?x:x.join('')).join(' ');
   const B=out.map(x=>{if(typeof x==='string')return x;const r=x.filter(p=>p!=='.');return r.length===2?r[0]+'.'+r[1].padStart(2,'0'):x.join('')}).join(' ');
   const nums=A.match(/\d+(\.\d+)?/g)||[];
